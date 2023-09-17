@@ -58,7 +58,7 @@ const sketch: Sketch = (p5) => {
   async function getData(img: any) {
     const res = await fetch("http://localhost:5000/api/solve", {
       method: "POST",
-      body: JSON.stringify({ image: img }),
+      body: JSON.stringify({ image: "HEllo" }),
       headers: {
         "Content-Type": "application/json",
       },
