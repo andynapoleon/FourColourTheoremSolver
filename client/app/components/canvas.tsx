@@ -58,12 +58,11 @@ const sketch: Sketch = (p5) => {
   async function getData(img: any) {
     const res = await fetch("http://localhost:5000/api/solve", {
       method: "POST",
-      body: JSON.stringify({ img }),
+      body: img,
       headers: {
         "Content-Type": "application/json",
       },
     });
-    const data = await res.json();
 
     if (!res.ok) {
       // This will activate the closest `error.js` Error Boundary
