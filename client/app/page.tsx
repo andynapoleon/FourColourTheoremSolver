@@ -1,27 +1,24 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import Canvas from "./components/canvas";
+import { Button } from "@mui/material";
+import { ColorMap, ResetMap } from "./components/canvas";
 
 export default function Home() {
-  const [message, setMessage] = useState("Loading");
-  const [people, setPeople] = useState([]);
-
-  useEffect(() => {
-    fetch("http://localhost:8080/api/home")
-      .then((response) => response.json())
-      .then((data) => {
-        setMessage(data.message);
-        setPeople(data.people);
-      });
-  }, []);
-
   return (
-    <div>
-      <div>{message}</div>
-
-      {people.map((person, index) => (
-        <div key={index}>{person}</div>
-      ))}
+    <div
+      style={{
+        position: "absolute",
+        left: "50%",
+        top: "50%",
+        transform: "translate(-50%, -50%)",
+      }}
+    >
+      <Canvas />
+      <Button variant="outlined" onClick={ColorMap} className="mt-5">
+        Color
+      </Button>
+      <Button variant="outlined" onClick={ResetMap} className="mt-5 ml-5">
+        Reset
+      </Button>
     </div>
   );
 }
