@@ -53,7 +53,6 @@ const sketch: Sketch = (p5) => {
       captureImage = false; // reset captureImage to false
       img.loadPixels();
       var array_pixels = img.pixels;
-      console.log(array_pixels);
       getData(array_pixels, img.width, img.height);
     }
   };

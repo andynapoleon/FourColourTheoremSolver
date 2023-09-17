@@ -99,7 +99,10 @@ def solve():
     colored_map = color_map(vertices, solution, black)
     end = time.time()
     print(end -begin)
-    return jsonify({"colored_map": "f"})
+    print(type(colored_map))
+    array = colored_map.tolist()
+    json_img = jsonify(array)
+    return json_img
 
 
 def preprocess_image(image):
