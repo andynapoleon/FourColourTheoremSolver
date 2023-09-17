@@ -59,8 +59,6 @@ const sketch: Sketch = (p5) => {
   };
 
   async function getData(array_pixels: any, w: any, h: any) {
-    const formData = new FormData();
-    formData.append("image", img);
     const res = await fetch("http://localhost:5000/api/solve", {
       method: "POST",
       body: JSON.stringify({image: array_pixels, height: h, width: w}),
