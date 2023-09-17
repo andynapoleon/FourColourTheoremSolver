@@ -58,10 +58,28 @@ const sketch: Sketch = (p5) => {
     }
   };
 
+  async function displayColoredMap(matrix: any) {
+    var height = matrix[0].length;
+    var width = matrix.length;
+    let img = p5.createImage(matrix[0].length, matrix.length);
+    img.loadPixels();
+    for (let i = 0; i < img.width; i++) {
+      for (let j = 0; j < img.height; j++) {
+        img.set(
+          i,
+          j,
+          p5.color(matrix[i][j][0], matrix[i][j][1], matrix[i][j][2])
+        );
+      }
+    }
+    img.updatePixels();
+    p5.image(img, 50, 50);
+  }
+
   async function getData(array_pixels: any, w: any, h: any) {
     const res = await fetch("http://localhost:5000/api/solve", {
       method: "POST",
-      body: JSON.stringify({image: array_pixels, height: h, width: w}),
+      body: JSON.stringify({ image: array_pixels, height: h, width: w }),
       headers: {
         "Content-Type": "application/json",
       },
