@@ -56,12 +56,11 @@ const sketch: Sketch = (p5) => {
   };
 
   async function getData(img: any) {
+    const formData = new FormData();
+    formData.append("image", img);
     const res = await fetch("http://localhost:5000/api/solve", {
       method: "POST",
-      body: JSON.stringify({ image: "HEllo" }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      body: formData,
     });
 
     if (!res.ok) {
