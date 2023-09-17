@@ -4,10 +4,10 @@ import { NextReactP5Wrapper } from "@p5-wrapper/next";
 import { P5WrapperClassName, type Sketch } from "@p5-wrapper/react";
 import { Life_Savers } from "next/font/google";
 
-var h = 500;
-var w = 700;
-var grid_h = 400;
-var grid_w = 600;
+var h = 300;
+var w = 500;
+var grid_h = 200;
+var grid_w = 400;
 var grid_margin = 50;
 
 var lines: { x: any; y: any }[][] = [];
@@ -33,7 +33,6 @@ const sketch: Sketch = (p5) => {
     p5.background(200);
     p5.stroke(0);
     p5.fill(255);
-    // var graphics = p5.createGraphics(grid_w - 1, grid_h - 1);
     p5.rect(50, 50, grid_w - 1, grid_h - 1);
 
     // draw lines
@@ -49,18 +48,23 @@ const sketch: Sketch = (p5) => {
 
     // save image
     if (captureImage) {
-      p5.get(50, 50, grid_w - 1, grid_h - 1);
-      p5.save("captured_image.png");
-      captureImage = false; // Reset captureImage to false
+      let img = p5.get(50, 50, grid_w, grid_h);
+      //p5.save(img, "captured_image.png");
+      captureImage = false; // reset captureImage to false
+      img.loadPixels();
+      var array_pixels = img.pixels;
+      console.log(array_pixels);
+      getData(array_pixels, img.width, img.height);
     }
   };
 
-  async function getData(img: any) {
-    const formData = new FormData();
-    formData.append("image", img);
+  async function getData(array_pixels: any, w: any, h: any) {
     const res = await fetch("http://localhost:5000/api/solve", {
       method: "POST",
-      body: formData,
+      body: JSON.stringify({image: array_pixels, height: h, width: w}),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     if (!res.ok) {
