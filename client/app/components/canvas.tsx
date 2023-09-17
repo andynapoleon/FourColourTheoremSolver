@@ -49,7 +49,7 @@ const sketch: Sketch = (p5) => {
     // save image
     if (captureImage) {
       let img = p5.get(50, 50, grid_w - 50, grid_h - 50);
-      p5.save(img, "captured_image.png");
+      //p5.save(img, "captured_image.png");
       captureImage = false; // reset captureImage to false
       getData(img);
     }
@@ -57,13 +57,14 @@ const sketch: Sketch = (p5) => {
 
   async function getData(img: any) {
     const res = await fetch("http://localhost:5000/api/solve", {
-      method: "GET",
+      method: "POST",
+      body: img,
     });
 
-    // if (!res.ok) {
-    //   // This will activate the closest `error.js` Error Boundary
-    //   throw new Error("Failed to fetch data");
-    // }
+    if (!res.ok) {
+      // This will activate the closest `error.js` Error Boundary
+      throw new Error("Failed to fetch data");
+    }
 
     const data = await res.json();
 

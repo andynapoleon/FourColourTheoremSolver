@@ -65,12 +65,10 @@ def return_home():
     })
 
 
-@app.route("/api/solve", methods=['GET'])
-def solve():
-    # begin =time.time()
-    # print("loading image")
-    #print(image)
-    '''
+@app.route("/api/solve", methods=['POST'])
+def solve(image):
+    begin =time.time()
+    print("loading image")
     print("preprocessing image")
     image = preprocess_image(image)
     print("finding countries")
@@ -82,11 +80,10 @@ def solve():
     print("selecting colors")
     solution = solve_graph(program)
     print("coloring map")
-    color_map(vertices, solution, black)
+    colored_map = color_map(vertices, solution, black)
     end = time.time()
     print(end -begin)
-    '''
-    return jsonify({"message": "test"})
+    return jsonify({"colored_map": colored_map})
 
 def preprocess_image(image):
      # remove alpha channel
@@ -205,7 +202,8 @@ def color_map(vertices, solution, black):
             new_color = (255,255,0)
         vertices[i][mask] = new_color
         image = np.maximum(image, vertices[i])
-    io.imsave('image.png', image)
+    #io.imsave('image.png', image)
+    return image
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
