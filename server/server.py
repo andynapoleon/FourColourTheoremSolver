@@ -68,7 +68,7 @@ def return_home():
 
 @app.route("/api/solve", methods=['POST'])
 def solve():
-    image = list(request.json["image"].values())
+    image = list(request.form.json["image"].values())
     width = request.json["width"]
     height = request.json["height"]
     index = 0
@@ -83,22 +83,22 @@ def solve():
             index += 4
     image = array
     io.imsave("input.png", array)
-    begin =time.time()
-    print("loading image")
-    print("preprocessing image")
-    #image = preprocess_image(image)
-    print("finding countries")
-    vertices, black, vertice_matrix = get_vertices(image)
-    print("finding neighbours")
-    edges = find_edges(image, vertices, vertice_matrix)
-    print("creating problem instance")
-    program = generate_program(len(vertices), edges)
-    print("selecting colors")
-    solution = solve_graph(program)
-    print("coloring map")
-    colored_map = color_map(vertices, solution, black)
-    end = time.time()
-    print(end -begin)
+    # begin =time.time()
+    # print("loading image")
+    # print("preprocessing image")
+    # #image = preprocess_image(image)
+    # print("finding countries")
+    # vertices, black, vertice_matrix = get_vertices(image)
+    # print("finding neighbours")
+    # edges = find_edges(image, vertices, vertice_matrix)
+    # print("creating problem instance")
+    # program = generate_program(len(vertices), edges)
+    # print("selecting colors")
+    # solution = solve_graph(program)
+    # print("coloring map")
+    # colored_map = color_map(vertices, solution, black)
+    # end = time.time()
+    # print(end -begin)
     return jsonify({"colored_map": colored_map})
 
 
