@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import convolve2d
 from skimage.morphology import binary_dilation, square
+import time
 
 # app instance
 app = Flask(__name__)
@@ -29,17 +30,15 @@ def solve():
     print("preprocessing image")
     image = preprocess_image(image)
     print("finding countries")
-    vertices, black = get_vertices(image)
+    vertices, black, vertice_matrix = get_vertices(image)
     print("finding neighbours")
-    edges = find_edges(image, vertices)
+    edges = find_edges(image, vertices, vertice_matrix)
     print("creating problem instance")
     program = generate_program(len(vertices), edges)
     print("selecting colors")
     solution = solve_graph(program)
     print("coloring map")
     color_map(vertices, solution, black)
-    # use solution to color map
-    # return colored map
     return "test"
 
 def preprocess_image(image):
@@ -57,27 +56,42 @@ def get_vertices(image):
     seed_point = (0,0)
     # find size of image
     height, width = image.shape[:2]
+    vertice_matrix = image
     for x in range(width):
         for y in range(height):
             if (image[y, x] == 1):
+                num += 1
                 # find the chunk associated with a vertex
                 vertex = segmentation.flood(image, (y,x))
+                vertice_matrix[vertex] = (num)
                 vertices.append(vertex)
                 # remove the chunk from the map
                 image = segmentation.flood_fill(image, (y,x), 0)
-    return vertices, image
+    return vertices, image, vertice_matrix
 
 
-def find_edges(image, vertices):
+def find_edges(image, vertices, vertice_matrix):
     # find all adjacecies between countries
     edges = list()
     num_vertices = len(vertices)
     # fuzzyness is how far countries are allowed to be apart to still be considered as bordering each other
-    fuzzyness = 10
+    fuzzyness = 8
     # find neighbours for each country
+    start = time.time()
     for i in range(num_vertices):
         # expand countries size to check overlapping
         dilated_image = binary_dilation(vertices[i], footprint=square(fuzzyness))
+        height, width = dilated_image.shape[:2]
+
+        
+        vertice_matrix_copy = vertice_matrix.copy()
+        vertice_matrix_copy[np.logical_not(dilated_image)] = 0
+        adjacents = np.unique(vertice_matrix_copy)
+        for adjacent in adjacents:
+            if (adjacent != 0 and adjacent != (i+1)):
+                edges.append((i, int(adjacent-1)))
+
+        '''
         # check each possible other country
         for j in range((i + 1), num_vertices):
             # take only the overlap between the enlarged country and its neighbour
@@ -87,7 +101,12 @@ def find_edges(image, vertices):
             # if adjacent add an edge
             if  (all_zeros == False):
                 edges.append((i, j))
+        '''
+        
+        
+    end = time.time()
 
+    print(end - start)
     return edges
 
 def generate_program(num_vertices, edges):
