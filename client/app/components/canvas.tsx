@@ -2,6 +2,7 @@
 
 import { NextReactP5Wrapper } from "@p5-wrapper/next";
 import { P5WrapperClassName, type Sketch } from "@p5-wrapper/react";
+import { Life_Savers } from "next/font/google";
 
 var h = 500;
 var w = 700;
@@ -13,20 +14,11 @@ var lines: { x: any; y: any }[][] = [];
 var start: { x: any; y: any }, end: { x: any; y: any }; // JSON
 var dragging: boolean; // boolean
 
+var captureImage = false;
+
 const sketch: Sketch = (p5) => {
   p5.setup = () => {
     p5.createCanvas(w, h);
-    // p5.background(200);
-
-    // let img = p5.createImage(grid_w, grid_h);
-    // for (let i = 0; i < img.width; i++) {
-    //   for (let j = 0; j < img.height; j++) {
-    //     img.set(i, j, p5.color(0, 90, 102));
-    //   }
-    // }
-    // img.updatePixels();
-    //p5.image(img, 50, 50);
-
     p5.noSmooth();
     p5.frameRate(30);
     dragging = false;
@@ -41,6 +33,7 @@ const sketch: Sketch = (p5) => {
     p5.background(200);
     p5.stroke(0);
     p5.fill(255);
+    // var graphics = p5.createGraphics(grid_w - 1, grid_h - 1);
     p5.rect(50, 50, grid_w - 1, grid_h - 1);
 
     // draw lines
@@ -53,6 +46,13 @@ const sketch: Sketch = (p5) => {
 
     // draw temporary line while dragging
     if (dragging) draw_line(start.x, start.y, end.x, end.y);
+
+    // save image
+    if (captureImage) {
+      p5.get(50, 50, grid_w - 1, grid_h - 1);
+      p5.save("captured_image.png");
+      captureImage = false; // Reset captureImage to false
+    }
   };
 
   function draw_point(x: number, y: number) {
@@ -129,6 +129,7 @@ const sketch: Sketch = (p5) => {
 };
 
 export function ColorMap() {
+  captureImage = true;
   console.log("Hello Color");
 }
 
