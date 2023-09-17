@@ -65,7 +65,9 @@ const sketch: Sketch = (p5) => {
     //   throw new Error("Failed to fetch data");
     // }
 
-    console.log(res.json());
+    const data = await res.json();
+
+    console.log(data);
     //return res.json();
   }
 
