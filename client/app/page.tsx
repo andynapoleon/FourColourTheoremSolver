@@ -1,5 +1,6 @@
 import Canvas from "./components/canvas";
-import React from "react";
+import { Button } from "@mui/material";
+import { ColorMap, ResetMap } from "./components/canvas";
 
 export default function Home() {
   return (
@@ -12,6 +13,12 @@ export default function Home() {
       }}
     >
       <Canvas />
+      <Button variant="outlined" onClick={ColorMap} className="mt-5">
+        Color
+      </Button>
+      <Button variant="outlined" onClick={ResetMap} className="mt-5 ml-5">
+        Reset
+      </Button>
     </div>
   );
 }

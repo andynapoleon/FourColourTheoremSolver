@@ -16,6 +16,17 @@ var dragging: boolean; // boolean
 const sketch: Sketch = (p5) => {
   p5.setup = () => {
     p5.createCanvas(w, h);
+    // p5.background(200);
+
+    // let img = p5.createImage(grid_w, grid_h);
+    // for (let i = 0; i < img.width; i++) {
+    //   for (let j = 0; j < img.height; j++) {
+    //     img.set(i, j, p5.color(0, 90, 102));
+    //   }
+    // }
+    // img.updatePixels();
+    //p5.image(img, 50, 50);
+
     p5.noSmooth();
     p5.frameRate(30);
     dragging = false;
@@ -23,7 +34,7 @@ const sketch: Sketch = (p5) => {
       x: w / 2,
       y: h / 2,
     };
-    //p5.loop();
+    p5.loop();
   };
 
   p5.draw = () => {
@@ -90,7 +101,7 @@ const sketch: Sketch = (p5) => {
       x: p5.mouseX,
       y: p5.mouseY,
     };
-    console.log(start);
+    //console.log(start);
   };
 
   p5.mouseDragged = () => {
@@ -98,9 +109,9 @@ const sketch: Sketch = (p5) => {
       x: p5.mouseX,
       y: p5.mouseY,
     };
-    console.log(end);
+    //console.log(end);
     dragging = true;
-    console.log(dragging);
+    //console.log(dragging);
   };
 
   p5.mouseReleased = () => {
@@ -116,6 +127,14 @@ const sketch: Sketch = (p5) => {
     };
   };
 };
+
+export function ColorMap() {
+  console.log("Hello Color");
+}
+
+export function ResetMap() {
+  console.log("Hello Reset");
+}
 
 export default function Canvas() {
   return <NextReactP5Wrapper sketch={sketch} />;
