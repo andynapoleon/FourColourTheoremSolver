@@ -66,10 +66,10 @@ def return_home():
 
 
 @app.route("/api/solve")
-def solve(image):
+def solve():
     begin =time.time()
     print("loading image")
-    print(image)
+    #print(image)
     '''
     print("preprocessing image")
     image = preprocess_image(image)
