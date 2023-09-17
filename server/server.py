@@ -66,7 +66,7 @@ def return_home():
 
 
 @app.route("/api/solve")
-def solve():
+def solve(image):
     begin =time.time()
     print("loading image")
     #print(image)
@@ -86,7 +86,7 @@ def solve():
     end = time.time()
     print(end -begin)
     '''
-    return "test"
+    return jsonify({"message": "test"})
 
 def preprocess_image(image):
      # remove alpha channel

@@ -60,12 +60,13 @@ const sketch: Sketch = (p5) => {
       method: "GET",
     });
 
-    if (!res.ok) {
-      // This will activate the closest `error.js` Error Boundary
-      throw new Error("Failed to fetch data");
-    }
+    // if (!res.ok) {
+    //   // This will activate the closest `error.js` Error Boundary
+    //   throw new Error("Failed to fetch data");
+    // }
 
-    return res.json();
+    console.log(res.json());
+    //return res.json();
   }
 
   function draw_point(x: number, y: number) {
