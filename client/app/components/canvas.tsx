@@ -13,8 +13,9 @@ var grid_margin = 50;
 var lines: { x: any; y: any }[][] = [];
 var start: { x: any; y: any }, end: { x: any; y: any }; // JSON
 var dragging: boolean; // boolean
-
+var captured_image = false;
 var captureImage = false;
+var matrix: any;
 
 const sketch: Sketch = (p5) => {
   p5.setup = () => {
@@ -29,22 +30,25 @@ const sketch: Sketch = (p5) => {
     p5.loop();
   };
 
+  
   p5.draw = () => {
-    p5.background(200);
-    p5.stroke(0);
-    p5.fill(255);
-    p5.rect(50, 50, grid_w - 1, grid_h - 1);
+    if (captured_image === false){
+      p5.background(200);
+      p5.stroke(0);
+      p5.fill(255);
+      p5.rect(50, 50, grid_w - 1, grid_h - 1);
 
-    // draw lines
-    let i = 0;
-    for (i = 0; i < lines.length; i++) {
-      var a = lines[i][0];
-      var b = lines[i][1];
-      draw_line(a.x, a.y, b.x, b.y);
+      // draw lines
+      let i = 0;
+      for (i = 0; i < lines.length; i++) {
+        var a = lines[i][0];
+        var b = lines[i][1];
+        draw_line(a.x, a.y, b.x, b.y);
+      }
+
+      // draw temporary line while dragging
+      if (dragging) draw_line(start.x, start.y, end.x, end.y);
     }
-
-    // draw temporary line while dragging
-    if (dragging) draw_line(start.x, start.y, end.x, end.y);
 
     // save image
     if (captureImage) {
@@ -53,25 +57,28 @@ const sketch: Sketch = (p5) => {
       captureImage = false; // reset captureImage to false
       img.loadPixels();
       var array_pixels = img.pixels;
-      getData(array_pixels, img.width, img.height);
+      getData(array_pixels, img.width, img.height)
+      console.log(matrix)
+    }
+    
+    if(captured_image){
+      displayColoredMap(matrix);
     }
   };
 
   async function displayColoredMap(matrix: any) {
-    var height = matrix[0].length;
-    var width = matrix.length;
+    // var height = matrix[0].length;
+    // var width = matrix.length;
     let img = p5.createImage(matrix[0].length, matrix.length);
     img.loadPixels();
-    for (let i = 0; i < img.width; i++) {
-      for (let j = 0; j < img.height; j++) {
-        img.set(
-          i,
-          j,
-          p5.color(matrix[i][j][0], matrix[i][j][1], matrix[i][j][2])
-        );
+    for (let i = 0; i < img.height; i++) {
+      for (let j = 0; j < img.width; j++) {
+        img.set(j,i, p5.color(matrix[i][j][0]* 256,matrix[i][j][1]* 256, matrix[i][j][2]* 256))
       }
     }
-    img.updatePixels();
+    console.log(img.pixels)
+    img.updatePixels()
+    img.loadPixels()
     p5.image(img, 50, 50);
   }
 
@@ -92,7 +99,8 @@ const sketch: Sketch = (p5) => {
     const data = await res.json();
 
     console.log(data);
-    //return res.json();
+    matrix = data;
+    captured_image = true;
   }
 
   function draw_point(x: number, y: number) {
@@ -174,6 +182,8 @@ export function ColorMap() {
 }
 
 export function ResetMap() {
+  lines = []
+  captured_image = false;
   console.log("Hello Reset");
 }
 

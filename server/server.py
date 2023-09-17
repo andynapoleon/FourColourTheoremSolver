@@ -100,7 +100,9 @@ def solve():
     end = time.time()
     print(end -begin)
     print(type(colored_map))
+    print(colored_map[30])
     array = colored_map.tolist()
+    print(array[30])
     json_img = jsonify(array)
     return json_img
 
@@ -223,7 +225,7 @@ def color_map(vertices, solution, black):
             new_color = (255,255,0)
         vertices[i][mask] = new_color
         image = np.maximum(image, vertices[i])
-        io.imsave("image.png",image)
+    io.imsave("image.png",image)
     return image
 
 if __name__ == "__main__":
