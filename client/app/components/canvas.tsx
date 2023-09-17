@@ -3,23 +3,19 @@
 import { NextReactP5Wrapper } from "@p5-wrapper/next";
 import { P5WrapperClassName, type Sketch } from "@p5-wrapper/react";
 
-var h = 300;
-var w = 500;
-var grid_h = 200;
-var grid_w = 400;
+var h = 500;
+var w = 700;
+var grid_h = 400;
+var grid_w = 600;
 var grid_margin = 50;
 
 var lines: { x: any; y: any }[][] = [];
 var start: { x: any; y: any }, end: { x: any; y: any }; // JSON
 var dragging: boolean; // boolean
-// var stop_updating = false;
-// var image_loaded = false;
-// var solve_start; // FLOAT
-// var solve_stage = -1; // INT
 
 const sketch: Sketch = (p5) => {
   p5.setup = () => {
-    p5.createCanvas(w, h, p5.WEBGL);
+    p5.createCanvas(w, h);
     p5.noSmooth();
     p5.frameRate(30);
     dragging = false;
@@ -27,7 +23,7 @@ const sketch: Sketch = (p5) => {
       x: w / 2,
       y: h / 2,
     };
-    p5.loop();
+    //p5.loop();
   };
 
   p5.draw = () => {

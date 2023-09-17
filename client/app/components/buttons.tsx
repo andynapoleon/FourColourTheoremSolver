@@ -10,3 +10,7 @@ export function SignInButton() {
 export function SignOutButton() {
   return <button>Sign out</button>;
 }
+
+export function ColorButton() {
+  return <button>Color this button!</button>;
+}
