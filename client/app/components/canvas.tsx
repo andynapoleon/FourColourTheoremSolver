@@ -55,6 +55,25 @@ const sketch: Sketch = (p5) => {
     }
   };
 
+  async function getData(img: any) {
+    const formData = new FormData();
+    formData.append("image", img);
+    const res = await fetch("http://localhost:5000/api/solve", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      // This will activate the closest `error.js` Error Boundary
+      throw new Error("Failed to fetch data");
+    }
+
+    const data = await res.json();
+
+    console.log(data);
+    //return res.json();
+  }
+
   function draw_point(x: number, y: number) {
     var i = 0;
     var j = 0;
