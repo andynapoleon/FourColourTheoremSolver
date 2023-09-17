@@ -23,12 +23,24 @@ def return_home():
 
 
 @app.route("/api/solve")
-def solve(image):
+def solve():
+    print("loading image")
+    image = io.imread("testimg4.png")
+    print("preprocessing image")
     image = preprocess_image(image)
-    vertices = get_vertices(image)
+    print("finding countries")
+    vertices, black = get_vertices(image)
+    print("finding neighbours")
     edges = find_edges(image, vertices)
+    print("creating problem instance")
     program = generate_program(len(vertices), edges)
-    solve_graph(program)
+    print("selecting colors")
+    solution = solve_graph(program)
+    print("coloring map")
+    color_map(vertices, solution, black)
+    # use solution to color map
+    # return colored map
+    return "test"
 
 def preprocess_image(image):
      # remove alpha channel
@@ -53,7 +65,7 @@ def get_vertices(image):
                 vertices.append(vertex)
                 # remove the chunk from the map
                 image = segmentation.flood_fill(image, (y,x), 0)
-    return vertices
+    return vertices, image
 
 
 def find_edges(image, vertices):
@@ -78,16 +90,19 @@ def find_edges(image, vertices):
 
     return edges
 
-def generate_program():
-    return ""
+def generate_program(num_vertices, edges):
+    program = ""
+    for vertex in range(num_vertices):
+        program += "vertex(" + str(vertex) +")."
+    for edge in edges:
+        program += "edge(" + str(edge[0]) + "," + str(edge[1]) + ")."
+    return program
 
-def solve_graph():
+def solve_graph(graph):
     with open('server/asp program/program.lp', 'r') as file:
         program = file.read()
     with open('server/asp program/colors.lp', 'r') as file:
         colors = file.read()
-    with open('server/asp program/graph.lp', 'r') as file:
-        graph = file.read()
 
     ctl = clingo.Control()
     ctl.add("pro", [], program + colors + graph)
@@ -105,8 +120,26 @@ def solve_graph():
         vertex = str(atom.arguments[0])
         color = str(atom.arguments[1])
         graph[vertex] = color
+    return(graph)
 
-    return(jsonify(graph))
+def color_map(vertices, solution, black):
+    image = black
+    image = color.gray2rgb(image)
+    for i in range(len(vertices)):
+        mask = vertices[i]
+        vertices[i] = color.gray2rgb(vertices[i])
+        colored = solution[str(i)]
+        if (colored == "green"):
+            new_color = (0,255,0)
+        elif (colored == "blue"):
+            new_color = (0,0,255)
+        elif (colored == "red"):
+            new_color = (255,0,0)
+        else:
+            new_color = (255,255,0)
+        vertices[i][mask] = new_color
+        image = np.maximum(image, vertices[i])
+    io.imsave('image.png', image)
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
