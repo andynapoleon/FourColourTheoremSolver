@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS;    # allows interacting with other servers
 from pymongo.mongo_client import MongoClient
 from dotenv import load_dotenv
@@ -66,7 +66,8 @@ def return_home():
 
 
 @app.route("/api/solve", methods=['POST'])
-def solve(image):
+def solve():
+    print(request)
     begin =time.time()
     print("loading image")
     print("preprocessing image")
@@ -83,7 +84,7 @@ def solve(image):
     colored_map = color_map(vertices, solution, black)
     end = time.time()
     print(end -begin)
-    return jsonify({"colored_map": colored_map})
+    return jsonify({"colored_map": "dfsfd"})
 
 def preprocess_image(image):
      # remove alpha channel
