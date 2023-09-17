@@ -48,17 +48,20 @@ const sketch: Sketch = (p5) => {
 
     // save image
     if (captureImage) {
-      let img = p5.get(50, 50, grid_w - 50, grid_h - 50);
+      let img = p5.get(50, 50, grid_w, grid_h);
       //p5.save(img, "captured_image.png");
       captureImage = false; // reset captureImage to false
-      getData(img);
+      img.loadPixels();
+      var array_pixels = img.pixels;
+      console.log(array_pixels);
+      getData(array_pixels, img.width, img.height);
     }
   };
 
-  async function getData(img: any) {
+  async function getData(array_pixels: any, w: any, h: any) {
     const res = await fetch("http://localhost:5000/api/solve", {
       method: "POST",
-      body: JSON.stringify({ image: "HEllo" }),
+      body: JSON.stringify({image: array_pixels, height: h, width: w}),
       headers: {
         "Content-Type": "application/json",
       },

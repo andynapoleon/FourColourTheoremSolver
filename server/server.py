@@ -13,6 +13,7 @@ import numpy as np
 from scipy.signal import convolve2d
 from skimage.morphology import binary_dilation, square
 import time
+import json
 
 # app instance
 app = Flask(__name__)
@@ -67,11 +68,25 @@ def return_home():
 
 @app.route("/api/solve", methods=['POST'])
 def solve():
-    print(request)
+    image = list(request.json["image"].values())
+    width = request.json["width"]
+    height = request.json["height"]
+    index = 0
+    array = np.zeros((height, width))
+    
+    for y in range(height):
+        for x in range(width):
+            if (image[index] > 128):
+                array[y][x] = 1
+            else:
+                array[y][x] = 0
+            index += 4
+    image = array
+    io.imsave("input.png", array)
     begin =time.time()
     print("loading image")
     print("preprocessing image")
-    image = preprocess_image(image)
+    #image = preprocess_image(image)
     print("finding countries")
     vertices, black, vertice_matrix = get_vertices(image)
     print("finding neighbours")
@@ -84,12 +99,13 @@ def solve():
     colored_map = color_map(vertices, solution, black)
     end = time.time()
     print(end -begin)
-    return jsonify({"colored_map": "dfsfd"})
+    return jsonify({"colored_map": colored_map})
+
 
 def preprocess_image(image):
      # remove alpha channel
-    if image.shape[2] == 4:
-        image = color.rgba2rgb(image)
+    #if image.shape[2] == 4:
+     #   image = color.rgba2rgb(image)
     # make greyscale
     image = color.rgb2gray(image)
     return image
@@ -112,6 +128,7 @@ def get_vertices(image):
                 vertices.append(vertex)
                 # remove the chunk from the map
                 image = segmentation.flood_fill(image, (y,x), 0)
+
     return vertices, image, vertice_matrix
 
 
@@ -203,7 +220,6 @@ def color_map(vertices, solution, black):
             new_color = (255,255,0)
         vertices[i][mask] = new_color
         image = np.maximum(image, vertices[i])
-    #io.imsave('image.png', image)
     return image
 
 if __name__ == "__main__":
