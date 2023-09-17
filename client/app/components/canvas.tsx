@@ -4,10 +4,10 @@ import { NextReactP5Wrapper } from "@p5-wrapper/next";
 import { P5WrapperClassName, type Sketch } from "@p5-wrapper/react";
 import { Life_Savers } from "next/font/google";
 
-var h = 500;
-var w = 700;
-var grid_h = 400;
-var grid_w = 600;
+var h = 300;
+var w = 500;
+var grid_h = 200;
+var grid_w = 400;
 var grid_margin = 50;
 
 var lines: { x: any; y: any }[][] = [];
@@ -33,7 +33,6 @@ const sketch: Sketch = (p5) => {
     p5.background(200);
     p5.stroke(0);
     p5.fill(255);
-    // var graphics = p5.createGraphics(grid_w - 1, grid_h - 1);
     p5.rect(50, 50, grid_w - 1, grid_h - 1);
 
     // draw lines
@@ -49,11 +48,30 @@ const sketch: Sketch = (p5) => {
 
     // save image
     if (captureImage) {
-      p5.get(50, 50, grid_w - 1, grid_h - 1);
-      p5.save("captured_image.png");
-      captureImage = false; // Reset captureImage to false
+      let img = p5.get(50, 50, grid_w - 50, grid_h - 50);
+      p5.save(img, "captured_image.png");
+      captureImage = false; // reset captureImage to false
+      getData(img);
     }
   };
+
+  async function getData(img: any) {
+    const res = await fetch("http://localhost:5000/api/solve", {
+      method: "POST",
+      body: JSON.stringify({ img }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      // This will activate the closest `error.js` Error Boundary
+      throw new Error("Failed to fetch data");
+    }
+
+    return res.json();
+  }
 
   function draw_point(x: number, y: number) {
     var i = 0;

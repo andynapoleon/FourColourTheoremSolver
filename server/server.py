@@ -66,10 +66,11 @@ def return_home():
 
 
 @app.route("/api/solve")
-def solve():
+def solve(image):
     begin =time.time()
     print("loading image")
-    image = io.imread("testimg4.png")
+    print(image)
+    '''
     print("preprocessing image")
     image = preprocess_image(image)
     print("finding countries")
@@ -84,6 +85,7 @@ def solve():
     color_map(vertices, solution, black)
     end = time.time()
     print(end -begin)
+    '''
     return "test"
 
 def preprocess_image(image):
