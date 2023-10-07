@@ -16,7 +16,8 @@ import json
 # app instance
 app = Flask(__name__)
 CORS(app)
-
+   
+'''
 uri = os.environ.get("URI")
 # Create a new client and connect to the server
 client = MongoClient(uri)
@@ -53,8 +54,7 @@ def read():
     
     return return_home()
 
-    
-
+ 
 # /api/home
 @app.route("/api/home", methods=['GET'])
 def return_home():
@@ -62,7 +62,7 @@ def return_home():
         "message": "Hello World!!!",
         "people": ["Sheikh", "Riley", "Peter", "Andy"]
     })
-
+'''
 
 @app.route("/api/solve", methods=['POST'])
 def solve():
@@ -96,10 +96,7 @@ def solve():
     colored_map = color_map(vertices, solution, black)
     end = time.time()
     print(end -begin)
-    print(type(colored_map))
-    print(colored_map[30])
     array = colored_map.tolist()
-    print(array[30])
     json_img = jsonify(array)
     return json_img
 
@@ -182,9 +179,9 @@ def generate_program(num_vertices, edges):
     return program
 
 def solve_graph(graph):
-    with open('server/asp program/program.lp', 'r') as file:
+    with open('asp program/program.lp', 'r') as file:
         program = file.read()
-    with open('server/asp program/colors.lp', 'r') as file:
+    with open('asp program/colors.lp', 'r') as file:
         colors = file.read()
 
     ctl = clingo.Control()
