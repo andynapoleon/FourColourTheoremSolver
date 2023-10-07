@@ -1,8 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS;    # allows interacting with other servers
 from pymongo.mongo_client import MongoClient
-from dotenv import load_dotenv
-load_dotenv()
 import os
 import clingo
 from pymongo.mongo_client import MongoClient
@@ -82,7 +80,6 @@ def solve():
                 array[y][x] = 0
             index += 4
     image = array
-    io.imsave("input.png", array)
     begin =time.time()
     print("loading image")
     print("preprocessing image")
@@ -225,7 +222,6 @@ def color_map(vertices, solution, black):
             new_color = (255,255,0)
         vertices[i][mask] = new_color
         image = np.maximum(image, vertices[i])
-    io.imsave("image.png",image)
     return image
 
 if __name__ == "__main__":
