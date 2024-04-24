@@ -15,14 +15,6 @@ export default function NavBar() {
         />
       </Link>
       <h1>The Best Map Coloring App in the World!</h1>
-      <ul className={styles.links}>
-        <li>
-          <SignInButton />
-        </li>
-        <li>
-          <SignOutButton />
-        </li>
-      </ul>
     </nav>
   );
 }
