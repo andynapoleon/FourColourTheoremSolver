@@ -195,4 +195,5 @@ def color_map(vertices, solution, black):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=8080)
+    port = os.getenv("PORT")
+    app.run(debug=True, port=(port or 1000))
