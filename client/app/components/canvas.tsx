@@ -30,9 +30,8 @@ const sketch: Sketch = (p5) => {
     p5.loop();
   };
 
-  
   p5.draw = () => {
-    if (captured_image === false){
+    if (captured_image === false) {
       p5.background(200);
       p5.stroke(0);
       p5.fill(255);
@@ -57,11 +56,11 @@ const sketch: Sketch = (p5) => {
       captureImage = false; // reset captureImage to false
       img.loadPixels();
       var array_pixels = img.pixels;
-      getData(array_pixels, img.width, img.height)
-      console.log(matrix)
+      getData(array_pixels, img.width, img.height);
+      console.log(matrix);
     }
-    
-    if(captured_image){
+
+    if (captured_image) {
       displayColoredMap(matrix);
     }
   };
@@ -73,17 +72,25 @@ const sketch: Sketch = (p5) => {
     img.loadPixels();
     for (let i = 0; i < img.height; i++) {
       for (let j = 0; j < img.width; j++) {
-        img.set(j,i, p5.color(matrix[i][j][0]* 256,matrix[i][j][1]* 256, matrix[i][j][2]* 256))
+        img.set(
+          j,
+          i,
+          p5.color(
+            matrix[i][j][0] * 256,
+            matrix[i][j][1] * 256,
+            matrix[i][j][2] * 256
+          )
+        );
       }
     }
-    console.log(img.pixels)
-    img.updatePixels()
-    img.loadPixels()
+    console.log(img.pixels);
+    img.updatePixels();
+    img.loadPixels();
     p5.image(img, 50, 50);
   }
 
   async function getData(array_pixels: any, w: any, h: any) {
-    const res = await fetch("http://localhost:5000/api/solve", {
+    const res = await fetch("http://localhost:8080/api/solve", {
       method: "POST",
       body: JSON.stringify({ image: array_pixels, height: h, width: w }),
       headers: {
@@ -182,7 +189,7 @@ export function ColorMap() {
 }
 
 export function ResetMap() {
-  lines = []
+  lines = [];
   captured_image = false;
   console.log("Hello Reset");
 }

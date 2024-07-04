@@ -1,11 +1,12 @@
 from flask import Flask, jsonify, request
-from flask_cors import CORS;    # allows interacting with other servers
-from pymongo.mongo_client import MongoClient
+from flask_cors import CORS
+
+# allows interacting with other servers
 from dotenv import load_dotenv
+
 load_dotenv()
 import os
 import clingo
-from pymongo.mongo_client import MongoClient
 import skimage as ski
 from skimage import io, segmentation, color
 import matplotlib.pyplot as plt
@@ -19,74 +20,36 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-uri = os.environ.get("URI")
-# Create a new client and connect to the server
-client = MongoClient(uri)
-# Send a ping to confirm a successful connection
-try:
-    client.admin.command('ping')
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-    print(e)
-
-@app.route("/api/database")
-def read():
-    db = client["GraphDB"]
-    collection = db["Nodes"]
-
-    # Document to insert
-    document1 = {"name": "Alice", "email": "examplealice@example.com", "vertices": "[]", "edges": "[]"}
-    document2 = {"name": "Bob", "email": "examplebob@example.com", "vertices": "[]", "edges": "[]"}
-
-    # Insert the documents into the collection
-    # Use a for loop to insert the list of documents if there are multiple
-    collection.insert_one(document1)
-    collection.insert_one(document2)
-
-    # Delete a document
-    delete_filter = {"name": "Alice"}
-    # Delete the document that matches the filter
-    result = collection.delete_one(delete_filter)
-    print("Deleted count:", result.deleted_count)
-    
-    documents = collection.find()
-    for document in documents:
-        print(document)
-    
-    return return_home()
-
-    
 
 # /api/home
-@app.route("/api/home", methods=['GET'])
+@app.route("/api/home", methods=["GET"])
 def return_home():
-    return jsonify({
-        "message": "Hello World!!!",
-        "people": ["Sheikh", "Riley", "Peter", "Andy"]
-    })
+    return jsonify(
+        {"message": "Hello World!!!", "people": ["Sheikh", "Riley", "Peter", "Andy"]}
+    )
 
 
-@app.route("/api/solve", methods=['POST'])
+@app.route("/api/solve", methods=["POST"])
 def solve():
     image = list(request.json["image"].values())
     width = request.json["width"]
     height = request.json["height"]
     index = 0
     array = np.zeros((height, width))
-    
+
     for y in range(height):
         for x in range(width):
-            if (image[index] > 128):
+            if image[index] > 128:
                 array[y][x] = 1
             else:
                 array[y][x] = 0
             index += 4
     image = array
-    io.imsave("input.png", array)
-    begin =time.time()
+    # io.imsave("input.png", array)
+    begin = time.time()
     print("loading image")
     print("preprocessing image")
-    #image = preprocess_image(image)
+    # image = preprocess_image(image)
     print("finding countries")
     vertices, black, vertice_matrix = get_vertices(image)
     print("finding neighbours")
@@ -98,7 +61,7 @@ def solve():
     print("coloring map")
     colored_map = color_map(vertices, solution, black)
     end = time.time()
-    print(end -begin)
+    print(end - begin)
     print(type(colored_map))
     print(colored_map[30])
     array = colored_map.tolist()
@@ -108,31 +71,32 @@ def solve():
 
 
 def preprocess_image(image):
-     # remove alpha channel
-    #if image.shape[2] == 4:
-     #   image = color.rgba2rgb(image)
+    # remove alpha channel
+    # if image.shape[2] == 4:
+    #   image = color.rgba2rgb(image)
     # make greyscale
     image = color.rgb2gray(image)
     return image
+
 
 def get_vertices(image):
     # find all uncolored chunks of the map
     vertices = []
     num = 0
-    seed_point = (0,0)
+    seed_point = (0, 0)
     # find size of image
     height, width = image.shape[:2]
     vertice_matrix = image
     for x in range(width):
         for y in range(height):
-            if (image[y, x] == 1):
+            if image[y, x] == 1:
                 num += 1
                 # find the chunk associated with a vertex
-                vertex = segmentation.flood(image, (y,x))
-                vertice_matrix[vertex] = (num)
+                vertex = segmentation.flood(image, (y, x))
+                vertice_matrix[vertex] = num
                 vertices.append(vertex)
                 # remove the chunk from the map
-                image = segmentation.flood_fill(image, (y,x), 0)
+                image = segmentation.flood_fill(image, (y, x), 0)
 
     return vertices, image, vertice_matrix
 
@@ -150,15 +114,14 @@ def find_edges(image, vertices, vertice_matrix):
         dilated_image = binary_dilation(vertices[i], footprint=square(fuzzyness))
         height, width = dilated_image.shape[:2]
 
-        
         vertice_matrix_copy = vertice_matrix.copy()
         vertice_matrix_copy[np.logical_not(dilated_image)] = 0
         adjacents = np.unique(vertice_matrix_copy)
         for adjacent in adjacents:
-            if (adjacent != 0 and adjacent != (i+1)):
-                edges.append((i, int(adjacent-1)))
+            if adjacent != 0 and adjacent != (i + 1):
+                edges.append((i, int(adjacent - 1)))
 
-        '''
+        """
         # check each possible other country
         for j in range((i + 1), num_vertices):
             # take only the overlap between the enlarged country and its neighbour
@@ -168,32 +131,33 @@ def find_edges(image, vertices, vertice_matrix):
             # if adjacent add an edge
             if  (all_zeros == False):
                 edges.append((i, j))
-        '''
-        
-        
+        """
+
     end = time.time()
 
     print(end - start)
     return edges
 
+
 def generate_program(num_vertices, edges):
     program = ""
     for vertex in range(num_vertices):
-        program += "vertex(" + str(vertex) +")."
+        program += "vertex(" + str(vertex) + ")."
     for edge in edges:
         program += "edge(" + str(edge[0]) + "," + str(edge[1]) + ")."
     return program
 
+
 def solve_graph(graph):
-    with open('server/asp program/program.lp', 'r') as file:
+    with open("./asp program/program.lp", "r") as file:
         program = file.read()
-    with open('server/asp program/colors.lp', 'r') as file:
+    with open("./asp program/colors.lp", "r") as file:
         colors = file.read()
 
     ctl = clingo.Control()
     ctl.add("pro", [], program + colors + graph)
-    ctl.ground([("pro",[])])
-    ctl.configuration.solve.models="1"      # max number of models to calculate, 0 for all
+    ctl.ground([("pro", [])])
+    ctl.configuration.solve.models = "1"  # max number of models to calculate, 0 for all
     models = []
     with ctl.solve(yield_=True) as handle:
         for model in handle:
@@ -206,7 +170,8 @@ def solve_graph(graph):
         vertex = str(atom.arguments[0])
         color = str(atom.arguments[1])
         graph[vertex] = color
-    return(graph)
+    return graph
+
 
 def color_map(vertices, solution, black):
     image = black
@@ -215,18 +180,19 @@ def color_map(vertices, solution, black):
         mask = vertices[i]
         vertices[i] = color.gray2rgb(vertices[i])
         colored = solution[str(i)]
-        if (colored == "green"):
-            new_color = (0,255,0)
-        elif (colored == "blue"):
-            new_color = (0,0,255)
-        elif (colored == "red"):
-            new_color = (255,0,0)
+        if colored == "green":
+            new_color = (0, 255, 0)
+        elif colored == "blue":
+            new_color = (0, 0, 255)
+        elif colored == "red":
+            new_color = (255, 0, 0)
         else:
-            new_color = (255,255,0)
+            new_color = (255, 255, 0)
         vertices[i][mask] = new_color
         image = np.maximum(image, vertices[i])
-    io.imsave("image.png",image)
+    # io.imsave("image.png", image)
     return image
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
