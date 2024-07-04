@@ -90,7 +90,13 @@ const sketch: Sketch = (p5) => {
   }
 
   async function getData(array_pixels: any, w: any, h: any) {
-    const res = await fetch("http://localhost:8080/api/solve", {
+    const apiHost = process.env.NEXT_PUBLIC_API_URL;
+
+    if (!apiHost) {
+      throw new Error("API host is not defined in the environment variables");
+    }
+
+    const res = await fetch(`${apiHost}/api/solve`, {
       method: "POST",
       body: JSON.stringify({ image: array_pixels, height: h, width: w }),
       headers: {
