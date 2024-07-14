@@ -1,0 +1,50 @@
+.nav {
+  display: flex;
+  background-color: #1d4ed8;
+  color: #fff;
+  height: 60px; /* Reduced from 70px */
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.navItem {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.navItem:first-child {
+  justify-content: flex-start;
+}
+
+.navItem:last-child {
+  justify-content: flex-end;
+}
+
+.authButtons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.navItem h1 {
+  font-size: 1rem; /* Reduced from 1.2rem */
+  margin: 0;
+  text-align: center;
+}
+
+.profileButton {
+  padding: 6px 12px; /* Reduced from 10px 20px */
+  background-color: #4caf50;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px; /* Reduced from 5px */
+  font-size: 14px; /* Reduced from 16px */
+  transition: background-color 0.3s ease;
+}
+
+.profileButton:hover {
+  background-color: #45a049;
+}

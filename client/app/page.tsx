@@ -1,8 +1,28 @@
-import Canvas from "./components/canvas";
-import { Button } from "@mui/material";
-import { ColorMap, ResetMap } from "./components/canvas";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Canvas from "./components/Canvas";
+import { Button } from "@mui/material";
+import { ColorMap, ResetMap } from "./components/Canvas";
+
+export default function HomeContent() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login");
+    } else {
+      setIsLoading(false);
+    }
+  }, [router]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div
       style={{

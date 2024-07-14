@@ -21,8 +21,7 @@ app = Flask(__name__)
 CORS(app)
 
 
-# /api/home
-@app.route("/api/home", methods=["GET"])
+@app.route("/", methods=["GET"])
 def return_home():
     return jsonify(
         {"message": "Hello World!!!", "people": ["Sheikh", "Riley", "Peter", "Andy"]}
