@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./styles/LoginForm.module.css";
+import Image from "next/image";
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -39,7 +40,14 @@ const LoginForm: React.FC = () => {
   return (
     <div className={styles.loginContainer}>
       <form onSubmit={handleSubmit} className={styles.loginForm}>
-        <h2 className={styles.formTitle}>Four-Color Theorem Solver</h2>
+        <Image
+          src="/logo.png"
+          alt="Cartoon Logo"
+          width={100}
+          height={100}
+          className={styles.logo}
+        />
+        <h2 className={styles.formTitle}>Four-Color Map Theorem Solver</h2>
 
         <div className={styles.inputGroup}>
           <label htmlFor="username" className={styles.label}>

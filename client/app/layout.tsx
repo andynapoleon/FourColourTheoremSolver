@@ -1,9 +1,9 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Anek_Gurmukhi } from "next/font/google";
+import { Fredoka } from "next/font/google";
 import ConditionalNavBar from "./components/ConditionalNavBar";
 
-const inter = Anek_Gurmukhi({ subsets: ["latin"] });
+const fredoka = Fredoka({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Four-Colour Theorem Map Coloring - Great App!",
@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={fredoka.className}>
       <body>
         <ConditionalNavBar />
         {children}
