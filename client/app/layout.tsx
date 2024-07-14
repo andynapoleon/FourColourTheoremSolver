@@ -6,9 +6,9 @@ import ConditionalNavBar from "./components/ConditionalNavBar";
 const inter = Anek_Gurmukhi({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Map Coloring",
+  title: "Four-Colour Theorem Map Coloring",
   description:
-    "A Next.js solver application for the famous Four-Colour Map Theorem. Built collaboratively during DevelopEd 2.0 by Dev Edmonton Society.",
+    "A solver application for the famous Four-Colour Map Theorem. Initially built collaboratively during DevelopEd 2.0 Hackathon (2023) and later further developed.",
 };
 
 export default function RootLayout({
