@@ -9,37 +9,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type apiFunc func(http.ResponseWriter, *http.Request) error
+/*
+MAIN FUNCTIONS
+*/
 
 type APIServer struct {
 	listenAddr string
+	store      Storage
 }
 
-type ApiError struct {
-	Error string
-}
-
-func writeJSON(w http.ResponseWriter, status int, v any) error {
-	// v is data to be encoded into json
-	w.WriteHeader(status)
-	w.Header().Set("Content-Type", "application/json")
-	return json.NewEncoder(w).Encode(v)
-}
-
-func makeHTTPHandlerFunc(f apiFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if err := f(w, r); err != nil {
-			// handle error
-			writeJSON(w, http.StatusBadRequest, ApiError{
-				Error: err.Error(),
-			})
-		}
-	}
-}
-
-func NewAPISever(listenAddr string) *APIServer {
+func NewAPISever(listenAddr string, store Storage) *APIServer {
 	return &APIServer{
 		listenAddr: listenAddr,
+		store:      store,
 	}
 }
 
@@ -48,7 +30,7 @@ func (s *APIServer) Run() {
 
 	router.HandleFunc("/user", makeHTTPHandlerFunc(s.handleUser))
 
-	router.HandleFunc("/user/{id}", makeHTTPHandlerFunc(s.handleGetUser))
+	router.HandleFunc("/user/{id}", makeHTTPHandlerFunc(s.handleGetUserById))
 
 	// serve the port
 	log.Println("JSON API Server running on port", s.listenAddr)
@@ -67,12 +49,59 @@ func (s *APIServer) handleUser(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) error {
-	user := NewUser("Andy Tran", "aqtran@ualberta.ca", "123456")
-	return writeJSON(w, http.StatusOK, user)
+	// Decode the request body
+	createUserReq := new(CreateUserRequest)
+	if err := json.NewDecoder(r.Body).Decode(createUserReq); err != nil {
+		return err
+	}
+
+	// Create a new user in the database
+	user := NewUser(createUserReq.Name, createUserReq.Email, createUserReq.Password)
+	if err := s.store.CreateUser(user); err != nil {
+		return err
+	}
+	return writeJSON(w, http.StatusOK, "New user created!")
 }
 
 func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error {
+	users, err := s.store.GetUsers()
+	if err != nil {
+		return err
+	}
+	return writeJSON(w, http.StatusOK, &users)
+}
+
+func (s *APIServer) handleGetUserById(w http.ResponseWriter, r *http.Request) error {
 	id := mux.Vars(r)["id"] // get all vars sent with the request
 	fmt.Println(id)
 	return writeJSON(w, http.StatusOK, &User{})
+}
+
+/*
+HELPER STRUCTS AND FUNCTIONS
+*/
+type apiFunc func(http.ResponseWriter, *http.Request) error
+
+type ApiError struct {
+	Error string
+}
+
+// Sends response in JSON format
+func writeJSON(w http.ResponseWriter, status int, v any) error {
+	// v is data to be encoded into json
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	return json.NewEncoder(w).Encode(v)
+}
+
+// Converts apiFunc to handlerFunc
+func makeHTTPHandlerFunc(f apiFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := f(w, r); err != nil {
+			// handle error
+			writeJSON(w, http.StatusBadRequest, ApiError{
+				Error: err.Error(),
+			})
+		}
+	}
 }
