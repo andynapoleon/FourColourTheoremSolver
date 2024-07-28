@@ -29,7 +29,7 @@ export default function NavBar() {
   const handleSignOut = () => {
     localStorage.removeItem("token");
     setIsAuthenticated(false);
-    router.push("/"); // Redirect to home page after sign out
+    router.push("/login"); // Redirect to home page after sign out
   };
 
   return (

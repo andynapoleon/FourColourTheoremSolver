@@ -15,19 +15,26 @@ const LoginForm: React.FC = () => {
     e.preventDefault();
     setError("");
 
+    const apiHost = process.env.NEXT_PUBLIC_GOAPI_URL;
+
+    if (!apiHost) {
+      throw new Error("API host is not defined in the environment variables");
+    }
+
     try {
-      const response = await fetch("/api/signin", {
+      const response = await fetch(`${apiHost}/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email: username, password: password }),
       });
 
       if (response.ok) {
         const data = await response.json();
+        console.log(data);
         localStorage.setItem("token", data.token);
-        router.push("/profile");
+        router.push("/");
       } else {
         setError("Invalid username or password");
       }
@@ -51,7 +58,7 @@ const LoginForm: React.FC = () => {
 
         <div className={styles.inputGroup}>
           <label htmlFor="username" className={styles.label}>
-            Username
+            Email
           </label>
           <input
             type="text"

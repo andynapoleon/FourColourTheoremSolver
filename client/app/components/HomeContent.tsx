@@ -1,9 +1,7 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Canvas from "./Canvas";
-import { Button } from "@mui/material";
 import { ColorMap, ResetMap } from "./Canvas";
 
 export default function HomeContent() {
@@ -23,22 +21,26 @@ export default function HomeContent() {
     return <div>Loading...</div>;
   }
 
+  const buttonStyles =
+    "px-4 py-2 text-sm font-bold uppercase rounded-full shadow-md transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:shadow-md";
+
   return (
-    <div
-      style={{
-        position: "absolute",
-        left: "50%",
-        top: "50%",
-        transform: "translate(-50%, -50%)",
-      }}
-    >
+    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
       <Canvas />
-      <Button variant="outlined" onClick={ColorMap} className="mt-5">
-        Color
-      </Button>
-      <Button variant="outlined" onClick={ResetMap} className="mt-5 ml-5">
-        Reset
-      </Button>
+      <div className="mt-5 flex justify-center space-x-4">
+        <button
+          onClick={ColorMap}
+          className={`${buttonStyles} bg-green-500 text-white border-2 border-green-600 hover:bg-green-600`}
+        >
+          Color
+        </button>
+        <button
+          onClick={ResetMap}
+          className={`${buttonStyles} bg-red-500 text-white border-2 border-red-600 hover:bg-red-600`}
+        >
+          Reset
+        </button>
+      </div>
     </div>
   );
 }

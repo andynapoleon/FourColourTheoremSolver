@@ -90,7 +90,7 @@ const sketch: Sketch = (p5) => {
   }
 
   async function getData(array_pixels: any, w: any, h: any) {
-    const apiHost = process.env.NEXT_PUBLIC_API_URL;
+    const apiHost = process.env.NEXT_PUBLIC_PYTHONAPI_URL;
 
     if (!apiHost) {
       throw new Error("API host is not defined in the environment variables");
