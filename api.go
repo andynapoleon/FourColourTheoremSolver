@@ -2,15 +2,15 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 /*
-MAIN FUNCTIONS
+ROUTES AND HANDLERS
 */
 
 type APIServer struct {
@@ -28,27 +28,36 @@ func NewAPISever(listenAddr string, store Storage) *APIServer {
 func (s *APIServer) Run() {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/user", makeHTTPHandlerFunc(s.handleUser))
+	// Routes
+	router.HandleFunc("/api/signup", makeHTTPHandlerFunc(s.handleSignUp))
+	router.HandleFunc("/api/login", makeHTTPHandlerFunc(s.handleLogin))
+	router.HandleFunc("/api/user", makeHTTPHandlerFunc(s.handleGetUser))
 
-	router.HandleFunc("/user/{id}", makeHTTPHandlerFunc(s.handleGetUserById))
+	// Create a CORS middleware
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // Allow all origins
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
+		AllowCredentials: true,
+	})
 
-	// serve the port
+	// Wrap the router with the CORS middleware
+	handler := c.Handler(router)
+
+	// Serve the port
 	log.Println("JSON API Server running on port", s.listenAddr)
-	if err := http.ListenAndServe(s.listenAddr, router); err != nil {
+	if err := http.ListenAndServe(s.listenAddr, handler); err != nil {
 		log.Fatalf("Error starting server: %v", err) // Log and exit on error
 	}
 }
 
-func (s *APIServer) handleUser(w http.ResponseWriter, r *http.Request) error {
-	if r.Method == "GET" {
-		return s.handleGetUser(w, r)
-	} else if r.Method == "POST" {
-		return s.handleCreateUser(w, r)
+// Sign up
+func (s *APIServer) handleSignUp(w http.ResponseWriter, r *http.Request) error {
+	// Check if method is not allowed
+	if r.Method != http.MethodPost {
+		return writeJSON(w, http.StatusMethodNotAllowed, ApiError{Error: "Method not allowed"})
 	}
-	return fmt.Errorf("method not allowed %s", r.Method)
-}
 
-func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) error {
 	// Decode the request body
 	createUserReq := new(CreateUserRequest)
 	if err := json.NewDecoder(r.Body).Decode(createUserReq); err != nil {
@@ -58,23 +67,71 @@ func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) err
 	// Create a new user in the database
 	user := NewUser(createUserReq.Name, createUserReq.Email, createUserReq.Password)
 	if err := s.store.CreateUser(user); err != nil {
-		return err
+		if err.Error() == "pq: duplicate key value violates unique constraint \"users_email_key\"" {
+			return writeJSON(w, http.StatusBadRequest, ApiError{Error: "Email already in use"})
+		}
 	}
-	return writeJSON(w, http.StatusOK, "New user created!")
+
+	return writeJSON(w, http.StatusOK, Message{Message: "New user created"})
 }
 
+// Login
+func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
+	// Check if method is not allowed
+	if r.Method != http.MethodPost {
+		return writeJSON(w, http.StatusMethodNotAllowed, ApiError{Error: "Method not allowed"})
+	}
+
+	// Decode the request body
+	u := new(LoginUserRequest)
+	if err := json.NewDecoder(r.Body).Decode(u); err != nil {
+		return err
+	}
+
+	// Grab user from the database
+	dbUser, err := s.store.GetUserByEmail(u.Email)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return writeJSON(w, http.StatusUnauthorized, ApiError{Error: "Invalid email"})
+		}
+	}
+
+	// Check password
+	if u.Email == dbUser.Email && u.Password == dbUser.Password {
+		tokenString, err := CreateToken(u.Email)
+		if err != nil {
+			return writeJSON(w, http.StatusInternalServerError, ApiError{Error: "Error creating token"})
+		}
+		return writeJSON(w, http.StatusOK, Token{Token: tokenString})
+	} else {
+		return writeJSON(w, http.StatusUnauthorized, ApiError{Error: "Invalid password"})
+	}
+}
+
+// Get all users
 func (s *APIServer) handleGetUser(w http.ResponseWriter, r *http.Request) error {
+	// Check if token is valid
+	tokenString := r.Header.Get("Authorization")
+	if tokenString == "" {
+		w.WriteHeader(http.StatusUnauthorized)
+		return writeJSON(w, http.StatusUnauthorized, ApiError{Error: "Missing authorization header"})
+	}
+	tokenString = tokenString[len("Bearer "):]
+	err := VerifyToken(tokenString)
+	if err != nil {
+		return writeJSON(w, http.StatusUnauthorized, ApiError{Error: "Invalid token"})
+	}
+
+	// Check if method is not allowed
+	if r.Method != http.MethodGet {
+		return writeJSON(w, http.StatusMethodNotAllowed, ApiError{Error: "Method not allowed"})
+	}
+
 	users, err := s.store.GetUsers()
 	if err != nil {
 		return err
 	}
 	return writeJSON(w, http.StatusOK, &users)
-}
-
-func (s *APIServer) handleGetUserById(w http.ResponseWriter, r *http.Request) error {
-	id := mux.Vars(r)["id"] // get all vars sent with the request
-	fmt.Println(id)
-	return writeJSON(w, http.StatusOK, &User{})
 }
 
 /*
@@ -83,7 +140,15 @@ HELPER STRUCTS AND FUNCTIONS
 type apiFunc func(http.ResponseWriter, *http.Request) error
 
 type ApiError struct {
-	Error string
+	Error string `json:"error"`
+}
+
+type Message struct {
+	Message string `json:"message"`
+}
+
+type Token struct {
+	Token string `json:"token"`
 }
 
 // Sends response in JSON format

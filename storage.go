@@ -12,6 +12,7 @@ type Storage interface {
 	UpdateUser(*User) error
 	GetUsers() ([]*User, error)
 	GetUserById(int) (*User, error)
+	GetUserByEmail(string) (*User, error)
 }
 
 type PostgresStore struct {
@@ -96,4 +97,22 @@ func (s *PostgresStore) GetUsers() ([]*User, error) {
 	}
 
 	return users, nil
+}
+
+func (s *PostgresStore) GetUserByEmail(email string) (*User, error) {
+	row := s.db.QueryRow("SELECT * FROM users WHERE email = $1", email)
+	user := new(User)
+	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Password); err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (s *PostgresStore) ClearPostgresStore() error {
+	_, err := s.db.Exec("DROP TABLE users")
+	if err != nil {
+		return err
+	}
+	return nil
 }

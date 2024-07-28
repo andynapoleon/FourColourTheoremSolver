@@ -1,10 +1,16 @@
 package main
 
-// CreateAccountRequest object
+// CreateUserRequest object
 type CreateUserRequest struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
-	Password string `json:"-"` // omit password in JSON responses for security
+	Password string `json:"password"`
+}
+
+// LoginUserRequest object
+type LoginUserRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 // User represents a user in the system
@@ -12,7 +18,7 @@ type User struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
-	Password string `json:"-"` // omit password in JSON responses for security
+	Password string `json:"password"`
 }
 
 // Image represents an image in the system
