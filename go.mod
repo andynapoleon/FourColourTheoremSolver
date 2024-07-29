@@ -13,4 +13,4 @@ require (
 	github.com/rs/cors v1.11.0
 )
 
-require golang.org/x/crypto v0.25.0 // indirect
+require golang.org/x/crypto v0.25.0
