@@ -51,4 +51,6 @@ Project Link: [https://github.com/andynapoleon/FourColourTheoremSolver](https://
 - [JWT](https://jwt.io/)
 - [Four Color Theorem](https://en.wikipedia.org/wiki/Four_color_theorem)
 
+---
+
 Happy mapping and may the colors be ever in your favor! 🌈
