@@ -193,6 +193,6 @@ def color_map(vertices, solution, black):
     return image
 
 
-if __name__ == "__main__":
-    port = os.getenv("PORT")
-    app.run(port=(port or 1000))
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
