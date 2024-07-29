@@ -38,25 +38,6 @@
   text-shadow: 2px 2px 0 #2980b9;
 }
 
-.profileButton {
-  padding: 8px 16px;
-  background-color: #2ecc71;
-  color: white;
-  text-decoration: none;
-  border-radius: 20px;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  border: 3px solid #27ae60;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-
-.profileButton:hover {
-  background-color: #27ae60;
-  transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
-}
-
 .navItem img {
   border-radius: 50%;
   transition: transform 0.3s ease;

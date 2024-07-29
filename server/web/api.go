@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	"golang.org/x/crypto/bcrypt"
 )
 
 /*
@@ -64,11 +65,24 @@ func (s *APIServer) handleSignUp(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	// Create a new user in the database
-	user := NewUser(createUserReq.Name, createUserReq.Email, createUserReq.Password)
+	// Hash the password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(createUserReq.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return writeJSON(w, http.StatusInternalServerError, ApiError{Error: "Password too long, 60 characters maximum"})
+	}
+
+	// Create a new user in the database with hashed password
+	user := NewUser(createUserReq.Name, createUserReq.Email, string(hashedPassword))
 	if err := s.store.CreateUser(user); err != nil {
 		if err.Error() == "pq: duplicate key value violates unique constraint \"users_email_key\"" {
 			return writeJSON(w, http.StatusBadRequest, ApiError{Error: "Email already in use"})
+		}
+		if err.Error() == "name too long: maximum length is 60 characters" {
+			return writeJSON(w, http.StatusBadRequest, ApiError{Error: "Name too long, 60 characters maximum"})
+		} else if err.Error() == "email too long: maximum length is 60 characters" {
+			return writeJSON(w, http.StatusBadRequest, ApiError{Error: "Email too long, 60 characters maximum"})
+		} else if err.Error() == "password too long: maximum length is 60 characters" {
+			return writeJSON(w, http.StatusBadRequest, ApiError{Error: "Password too long, 60 characters maximum"})
 		}
 	}
 
@@ -96,13 +110,14 @@ func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	// Check password
-	if u.Email == dbUser.Email && u.Password == dbUser.Password {
+	// Compare the provided password with the hashed password
+	err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(u.Password))
+	if err == nil {
 		tokenString, err := CreateToken(u.Email)
 		if err != nil {
 			return writeJSON(w, http.StatusInternalServerError, ApiError{Error: "Error creating token"})
 		}
-		return writeJSON(w, http.StatusOK, Token{Token: tokenString})
+		return writeJSON(w, http.StatusOK, LoginMessage{Token: tokenString, Name: dbUser.Name})
 	} else {
 		return writeJSON(w, http.StatusUnauthorized, ApiError{Error: "Invalid password"})
 	}
@@ -147,8 +162,9 @@ type Message struct {
 	Message string `json:"message"`
 }
 
-type Token struct {
+type LoginMessage struct {
 	Token string `json:"token"`
+	Name  string `json:"name"`
 }
 
 // Sends response in JSON format

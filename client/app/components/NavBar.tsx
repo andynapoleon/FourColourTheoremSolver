@@ -28,8 +28,9 @@ export default function NavBar() {
 
   const handleSignOut = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("name");
     setIsAuthenticated(false);
-    router.push("/login"); // Redirect to home page after sign out
+    router.push("/login"); // Redirect to login page after sign out
   };
 
   return (
@@ -48,11 +49,6 @@ export default function NavBar() {
         <h1>The Best Map Coloring App in the World!</h1>
       </div>
       <div className={`${styles.navItem} ${styles.authButtons}`}>
-        {isAuthenticated && (
-          <Link href="/profile" className={styles.profileButton}>
-            Profile
-          </Link>
-        )}
         {isAuthenticated ? (
           <SignOutButton onSignOut={handleSignOut} />
         ) : (

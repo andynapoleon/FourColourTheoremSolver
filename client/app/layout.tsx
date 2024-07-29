@@ -6,7 +6,7 @@ import ConditionalNavBar from "./components/ConditionalNavBar";
 const fredoka = Fredoka({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Four-Colour Theorem Map Coloring - Great App!",
+  title: "Four-Colour Theorem Map Coloring",
   description:
     "A solver application for the famous Four-Colour Map Theorem. Initially built collaboratively during DevelopEd 2.0 Hackathon (2023) and later further developed.",
 };

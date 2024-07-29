@@ -7,7 +7,7 @@ export default function ConditionalNavBar() {
   const pathname = usePathname();
 
   // Don't render NavBar on login page
-  if (pathname === "/login") {
+  if (pathname === "/login" || pathname === "/signup") {
     return null;
   }
 

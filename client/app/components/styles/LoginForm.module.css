@@ -114,3 +114,22 @@
     transform: translateY(-10px);
   }
 }
+
+.signupLink {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 1rem;
+  color: #5a5a5a;
+}
+
+.signupLink a {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.signupLink a:hover {
+  color: #2980b9;
+  text-decoration: underline;
+}

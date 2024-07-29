@@ -12,6 +12,7 @@ import (
 
 var secretKey []byte
 
+// Load and get	the secret key from the environment
 func init() {
 	err := godotenv.Load()
 	if err != nil {
@@ -25,6 +26,7 @@ func init() {
 	secretKey = []byte(key)
 }
 
+// CreateToken creates a new JWT token
 func CreateToken(username string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
@@ -40,6 +42,7 @@ func CreateToken(username string) (string, error) {
 	return tokenString, nil
 }
 
+// VerifyToken verifies a JWT token
 func VerifyToken(tokenString string) error {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return secretKey, nil

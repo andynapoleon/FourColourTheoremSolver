@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./styles/LoginForm.module.css";
 import Image from "next/image";
+import Link from "next/link";
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState("");
@@ -34,6 +35,7 @@ const LoginForm: React.FC = () => {
         const data = await response.json();
         console.log(data);
         localStorage.setItem("token", data.token);
+        localStorage.setItem("name", data.name);
         router.push("/");
       } else {
         setError("Invalid username or password");
@@ -89,6 +91,9 @@ const LoginForm: React.FC = () => {
         <button type="submit" className={styles.submitButton}>
           Login
         </button>
+        <p className={styles.signupLink}>
+          Don't have an account? <Link href="/signup">Sign up</Link>
+        </p>
       </form>
     </div>
   );
