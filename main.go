@@ -19,7 +19,7 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 
-	// Run server
+	// Run server like a Go pro
 	server := NewAPISever(":5180", store)
 	server.Run()
 }
