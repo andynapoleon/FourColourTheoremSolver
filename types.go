@@ -21,19 +21,7 @@ type User struct {
 	Password string `json:"password"`
 }
 
-// Image represents an image in the system
-type Image struct {
-	ID  int    `json:"id"`
-	URL string `json:"url"`
-}
-
-// UserImage represents the many-to-many relationship between users and images
-type UserImage struct {
-	UserID  int
-	ImageID int
-}
-
-// Constructor
+// Constructor for User
 func NewUser(name string, email string, password string) *User {
 	return &User{
 		Name:     name,

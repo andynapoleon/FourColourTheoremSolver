@@ -14,9 +14,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// // Drop the table users first
-	// err = store.ClearPostgresStore()
-	// if err != nil {
+	// Clear the users table
+	// if _, err := store.db.Exec("DELETE FROM users"); err != nil {
 	// 	log.Fatal(err)
 	// }
 

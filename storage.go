@@ -7,18 +7,19 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// Storage interface
 type Storage interface {
 	CreateUser(*User) error
-	UpdateUser(*User) error
 	GetUsers() ([]*User, error)
-	GetUserById(int) (*User, error)
 	GetUserByEmail(string) (*User, error)
 }
 
+// PostgresStore struct
 type PostgresStore struct {
 	db *sql.DB
 }
 
+// NewPostgresStore creates a new PostgresStore
 func NewPostgresStore() (*PostgresStore, error) {
 	connStr := "user=postgres dbname=postgres password=goweblikepeterparker sslmode=disable"
 
@@ -36,23 +37,35 @@ func NewPostgresStore() (*PostgresStore, error) {
 	}, nil
 }
 
+// Init initializes the PostgresStore
 func (s *PostgresStore) Init() error {
 	return s.CreateUserTable()
 }
 
+// CreateUserTable creates the users table
 func (s *PostgresStore) CreateUserTable() error {
 	query := `CREATE TABLE IF NOT EXISTS users(
 		id SERIAL PRIMARY KEY,
-		name VARCHAR(50) NOT NULL,
-		email VARCHAR(100) UNIQUE NOT NULL, 
-		password VARCHAR(100) NOT NULL
+		name VARCHAR(60) NOT NULL,
+		email VARCHAR(60) UNIQUE NOT NULL, 
+		password VARCHAR(60) NOT NULL
 	);`
 
 	_, err := s.db.Exec(query)
 	return err
 }
 
+// CreateUser creates a new user
 func (s *PostgresStore) CreateUser(user *User) error {
+	if len(user.Name) > 60 {
+		return fmt.Errorf("name too long: maximum length is 60 characters")
+	}
+	if len(user.Email) > 60 {
+		return fmt.Errorf("email too long: maximum length is 60 characters")
+	}
+	if len(user.Password) > 60 {
+		return fmt.Errorf("password too long: maximum length is 60 characters")
+	}
 	query := `
         INSERT INTO users (name, email, password) 
         VALUES ($1, $2, $3)
@@ -73,14 +86,7 @@ func (s *PostgresStore) CreateUser(user *User) error {
 	return nil
 }
 
-func (s *PostgresStore) UpdateUser(user *User) error {
-	return nil
-}
-
-func (s *PostgresStore) GetUserById(id int) (*User, error) {
-	return nil, nil
-}
-
+// GetUsers gets all users
 func (s *PostgresStore) GetUsers() ([]*User, error) {
 	rows, err := s.db.Query("SELECT * FROM users")
 	if err != nil {
@@ -99,6 +105,7 @@ func (s *PostgresStore) GetUsers() ([]*User, error) {
 	return users, nil
 }
 
+// GetUserByEmail gets a user by email
 func (s *PostgresStore) GetUserByEmail(email string) (*User, error) {
 	row := s.db.QueryRow("SELECT * FROM users WHERE email = $1", email)
 	user := new(User)
@@ -107,12 +114,4 @@ func (s *PostgresStore) GetUserByEmail(email string) (*User, error) {
 	}
 
 	return user, nil
-}
-
-func (s *PostgresStore) ClearPostgresStore() error {
-	_, err := s.db.Exec("DROP TABLE users")
-	if err != nil {
-		return err
-	}
-	return nil
 }
