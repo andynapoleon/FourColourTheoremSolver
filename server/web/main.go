@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 )
 
 func main() {
@@ -20,6 +21,11 @@ func main() {
 	// }
 
 	// Run server like a Go pro
-	server := NewAPISever(":5180", store)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // Default port if not specified
+	}
+
+	server := NewAPISever(":"+port, store)
 	server.Run()
 }

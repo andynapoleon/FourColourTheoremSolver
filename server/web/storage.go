@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	_ "github.com/lib/pq"
 )
@@ -21,7 +22,7 @@ type PostgresStore struct {
 
 // NewPostgresStore creates a new PostgresStore
 func NewPostgresStore() (*PostgresStore, error) {
-	connStr := "user=postgres dbname=postgres password=goweblikepeterparker sslmode=disable"
+	connStr := os.Getenv("DATABASE_URL")
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
