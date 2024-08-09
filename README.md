@@ -47,8 +47,6 @@ Contributions are what make the open-source community such an amazing place to l
 
 Andy Tran - anhquoctran006@gmail.com
 
-Project Link: [https://github.com/andynapoleon/FourColourTheoremSolver](https://github.com/andynapoleon/FourColourTheoremSolver)
-
 ## 🙏 Acknowledgements
 
 - [Next.js](https://nextjs.org/)
