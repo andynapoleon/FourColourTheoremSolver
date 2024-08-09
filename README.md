@@ -51,6 +51,7 @@ Andy Tran - anhquoctran006@gmail.com
 
 - [Next.js](https://nextjs.org/)
 - [Go](https://golang.org/)
+- [Flask](https://flask.palletsprojects.com/en/3.0.x/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [JWT](https://jwt.io/)
 - [Four Color Theorem](https://en.wikipedia.org/wiki/Four_color_theorem)
