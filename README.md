@@ -28,7 +28,7 @@ _Password_: Pongpongpong
 
 ## 🛠️ Tech Stack
 
-- Frontend: React.js with Next.js framework
+- Frontend: React.js with Next.js framework and TypeScript
 - Backend: Go's net/http (Golang), Flask (Python)
 - Database: PostgreSQL
 - Authentication: JWT (JSON Web Tokens)
