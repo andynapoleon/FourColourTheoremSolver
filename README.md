@@ -50,7 +50,7 @@ Andy Tran - anhquoctran006@gmail.com
 ## 🙏 Acknowledgements
 
 - [Next.js](https://nextjs.org/)
-- [Go's net/http]([https://golang.org/](https://pkg.go.dev/net/http))
+- [Go's net/http](https://pkg.go.dev/net/http/)
 - [Flask](https://flask.palletsprojects.com/en/3.0.x/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [JWT](https://jwt.io/)
