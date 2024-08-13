@@ -29,7 +29,7 @@ _Password_: Pongpongpong
 ## 🛠️ Tech Stack
 
 - Frontend: React.js with Next.js framework
-- Backend: Go (Golang), Flask (Python)
+- Backend: Go's net/http (Golang), Flask (Python)
 - Database: PostgreSQL
 - Authentication: JWT (JSON Web Tokens)
 
@@ -50,7 +50,7 @@ Andy Tran - anhquoctran006@gmail.com
 ## 🙏 Acknowledgements
 
 - [Next.js](https://nextjs.org/)
-- [Go](https://golang.org/)
+- [Go's net/http]([https://golang.org/](https://pkg.go.dev/net/http))
 - [Flask](https://flask.palletsprojects.com/en/3.0.x/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [JWT](https://jwt.io/)
