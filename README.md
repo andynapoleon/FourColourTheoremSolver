@@ -23,7 +23,7 @@ Welcome to the Four-Color Map Theorem Solver! This exciting project brings the f
 ## 🛠️ Tech Stack
 
 - Frontend: React.js with Next.js framework and TypeScript
-- Backend: Go's net/http (Golang), Flask (Python)
+- Backend: Flask (Python)
 - Database: PostgreSQL
 - Authentication: JWT (JSON Web Tokens)
 
@@ -44,7 +44,6 @@ Andy Tran - anhquoctran006@gmail.com
 ## 🙏 Acknowledgements
 
 - [Next.js](https://nextjs.org/)
-- [Go's net/http](https://pkg.go.dev/net/http/)
 - [Flask](https://flask.palletsprojects.com/en/3.0.x/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [JWT](https://jwt.io/)
