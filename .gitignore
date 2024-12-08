@@ -3,3 +3,5 @@
 .env
 server/__pycache__
 __pycache__
+db-data
+.DS_Store
