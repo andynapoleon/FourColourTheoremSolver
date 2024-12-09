@@ -39,6 +39,11 @@ func authMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		if strings.HasPrefix((r.URL.Path), "/healthcheck") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		token := r.Header.Get("Authorization")
 		if token == "" {
 			http.Error(w, "No authorization token provided", http.StatusUnauthorized)

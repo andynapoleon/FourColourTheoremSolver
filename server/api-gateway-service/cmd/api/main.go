@@ -42,6 +42,10 @@ func getEnvOrDefault(key, defaultValue string) string {
 
 func setupRoutes(router *mux.Router) {
 	// Auth routes (unprotected)
+	router.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	}).Methods("GET")
 	router.HandleFunc("/api/v1/auth/register", handleRegister).Methods("POST")
 	router.HandleFunc("/api/v1/auth/login", handleLogin).Methods("POST")
 
