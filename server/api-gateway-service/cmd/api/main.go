@@ -10,9 +10,11 @@ import (
 )
 
 type ColoringRequest struct {
-	Image  map[string]uint8 `json:"image"`
-	Width  int              `json:"width"`
-	Height int              `json:"height"`
+	Image struct {
+		Data []uint8 `json:"data"`
+	} `json:"image"`
+	Width  int `json:"width"`
+	Height int `json:"height"`
 }
 
 type AppConfig struct {

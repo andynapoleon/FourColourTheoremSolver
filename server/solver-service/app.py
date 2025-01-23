@@ -28,46 +28,76 @@ def return_home():
     )
 
 
-@app.route("/api/solve", methods=["POST"])
+@app.route('/api/solve', methods=['POST'])
 def solve():
-    print("HEREHRHEHREHRHE")
-    image = list(request.json["image"].values())
-    width = request.json["width"]
-    height = request.json["height"]
-    index = 0
-    array = np.zeros((height, width))
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No JSON data received"}), 400
 
-    for y in range(height):
-        for x in range(width):
-            if image[index] > 128:
-                array[y][x] = 1
-            else:
-                array[y][x] = 0
-            index += 4
-    image = array
-    # io.imsave("input.png", array)
-    begin = time.time()
-    print("loading image")
-    print("preprocessing image")
-    # image = preprocess_image(image)
-    print("finding countries")
-    vertices, black, vertice_matrix = get_vertices(image)
-    print("finding neighbours")
-    edges = find_edges(image, vertices, vertice_matrix)
-    print("creating problem instance")
-    program = generate_program(len(vertices), edges)
-    print("selecting colors")
-    solution = solve_graph(program)
-    print("coloring map")
-    colored_map = color_map(vertices, solution, black)
-    end = time.time()
-    print(end - begin)
-    print(type(colored_map))
-    print(colored_map[30])
-    array = colored_map.tolist()
-    print(array[30])
-    json_img = jsonify(array)
-    return json_img
+        print("Received request data:", data.keys())
+        
+        if 'image' not in data or 'width' not in data or 'height' not in data:
+            return jsonify({"error": "Missing required fields"}), 400
+
+        # Convert image data to integers if they're strings
+        image_data = data["image"]
+        if isinstance(image_data[0], str):
+            image_data = [int(x) for x in image_data]
+        
+        width = int(data["width"])
+        height = int(data["height"])
+        
+        print(f"Processing image: {width}x{height}, data length: {len(image_data)}")
+        print(f"Sample data: {image_data[:10]}")  # Print first 10 values for debugging
+
+        # Convert image data to numpy array
+        index = 0
+        array = np.zeros((height, width))
+
+        for y in range(height):
+            for x in range(width):
+                try:
+                    pixel_value = int(image_data[index])
+                    array[y][x] = 1 if pixel_value > 128 else 0
+                except (ValueError, TypeError) as e:
+                    print(f"Error processing pixel at index {index}: {e}")
+                    return jsonify({"error": f"Invalid pixel data at index {index}"}), 400
+                index += 4
+
+        begin = time.time()
+        print("Finding countries...")
+        vertices, black, vertice_matrix = get_vertices(array)
+        
+        print("Finding neighbours...")
+        edges = find_edges(array, vertices, vertice_matrix)
+        
+        print("Creating problem instance...")
+        program = generate_program(len(vertices), edges)
+        
+        print("Selecting colors...")
+        solution = solve_graph(program)
+        
+        print("Coloring map...")
+        colored_map = color_map(vertices, solution, black)
+        
+        end = time.time()
+        print(f"Processing time: {end - begin:.2f} seconds")
+
+        # Convert numpy array to list for JSON serialization
+        result = colored_map.tolist()
+        return jsonify(result)
+
+    except Exception as e:
+        print(f"Error processing request: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+# Add a health check endpoint
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({"status": "healthy"})
 
 
 def preprocess_image(image):

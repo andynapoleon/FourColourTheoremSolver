@@ -118,25 +118,44 @@ async function getData(array_pixels, w, h) {
     throw new Error("API host is not defined in the environment variables");
   }
 
-  console.log("Auth token: ", localStorage.getItem("token"));
+  // Convert Uint8ClampedArray to regular array
+  const pixelArray = Array.from(array_pixels);
 
-  const res = await fetch(`${apiHost}/api/v1/maps/color`, {
-    method: "POST",
-    body: JSON.stringify({ image: array_pixels, height: h, width: w }),
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-      "Content-Type": "application/json",
-    },
-  });
+  try {
+    console.log("Sending request with:", {
+      width: w,
+      height: h,
+      imageLength: pixelArray.length,
+    });
 
-  if (!res.ok) {
-    console.log(res);
-    throw new Error("Failed to fetch data");
+    const res = await fetch(`${apiHost}/api/v1/maps/color`, {
+      method: "POST",
+      body: JSON.stringify({
+        image: {
+          data: pixelArray,
+        },
+        height: h,
+        width: w,
+      }),
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("Server response:", res.status, errorText);
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+    const data = await res.json();
+    matrix = data;
+    captured_image = true;
+  } catch (error) {
+    console.error("Error in getData:", error);
+    throw error;
   }
-
-  const data = await res.json();
-  matrix = data;
-  captured_image = true;
 }
 
 function displayColoredMap(p, matrix) {

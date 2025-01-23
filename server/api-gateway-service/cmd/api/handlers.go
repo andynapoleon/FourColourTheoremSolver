@@ -8,50 +8,100 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 )
 
 func handleMapColoring(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[MapColoring] Starting handler")
+
+	// Set headers
+	w.Header().Set("Content-Type", "application/json")
+
 	// Read request body
 	var coloringReq ColoringRequest
 	if err := json.NewDecoder(r.Body).Decode(&coloringReq); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		log.Printf("[MapColoring] Error parsing JSON: %v", err)
+		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
 		return
 	}
 
-	// Validate request
-	if coloringReq.Width <= 0 || coloringReq.Height <= 0 || len(coloringReq.Image) == 0 {
-		http.Error(w, "Invalid dimensions or empty image", http.StatusBadRequest)
-		return
+	// Access the image data correctly
+	imageData := coloringReq.Image.Data
+
+	log.Printf("[MapColoring] Request decoded - Width: %d, Height: %d, Image pixels: %d",
+		coloringReq.Width, coloringReq.Height, len(imageData))
+
+	// Convert uint8 array to int array
+	intImageData := make([]int, len(imageData))
+	for i, v := range imageData {
+		intImageData[i] = int(v)
 	}
 
-	// Forward request to Map Coloring Service
-	jsonData, err := json.Marshal(coloringReq)
+	config, err := loadConfig()
 	if err != nil {
+		log.Printf("[MapColoring] Error loading config: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	coloringURL := fmt.Sprintf("%s/api/solve", config.ColoringService)
+	log.Printf("[MapColoring] Calling coloring service at: %s", coloringURL)
+
+	// Create the request body
+	serviceReq := map[string]interface{}{
+		"image":  intImageData,
+		"width":  coloringReq.Width,
+		"height": coloringReq.Height,
+	}
+
+	jsonData, err := json.Marshal(serviceReq)
+	if err != nil {
+		log.Printf("[MapColoring] Error marshaling request: %v", err)
 		http.Error(w, "Error processing request", http.StatusInternalServerError)
 		return
 	}
 
-	config, _ := loadConfig()
-	coloringURL := fmt.Sprintf("%s/api/solve", config.ColoringService)
-	log.Println("Forwarding request to coloring service:", coloringURL)
+	// Create HTTP client with timeout
+	client := &http.Client{
+		Timeout: 60 * time.Second,
+	}
 
-	resp, err := http.Post(coloringURL, "application/json", bytes.NewBuffer(jsonData))
+	// Create request
+	req, err := http.NewRequest("POST", coloringURL, bytes.NewBuffer(jsonData))
 	if err != nil {
+		log.Printf("[MapColoring] Error creating request: %v", err)
+		http.Error(w, "Error creating request", http.StatusInternalServerError)
+		return
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	// Send request
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Printf("[MapColoring] Error calling coloring service: %v", err)
 		http.Error(w, "Error communicating with coloring service", http.StatusInternalServerError)
-		log.Println("Error communicating with coloring service:", err)
 		return
 	}
 	defer resp.Body.Close()
 
-	// Check response status
-	if resp.StatusCode != http.StatusOK {
-		http.Error(w, "Error from coloring service", resp.StatusCode)
+	// Read response
+	responseBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("[MapColoring] Error reading response: %v", err)
+		http.Error(w, "Error reading service response", http.StatusInternalServerError)
 		return
 	}
 
-	// Forward the response back to client
-	w.Header().Set("Content-Type", "application/json")
-	io.Copy(w, resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("[MapColoring] Coloring service returned status: %d, body: %s",
+			resp.StatusCode, string(responseBody))
+		http.Error(w, string(responseBody), resp.StatusCode)
+		return
+	}
+
+	log.Printf("[MapColoring] Successfully processed request")
+	w.Write(responseBody)
 }
 
 func verifyToken(token string) bool {
