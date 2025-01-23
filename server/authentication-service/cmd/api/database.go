@@ -40,5 +40,10 @@ func initDB() (*sql.DB, error) {
 		return nil, err
 	}
 
+	// Run migrations
+	if err = runMigrations(db); err != nil {
+		return nil, fmt.Errorf("failed to run migrations: %v", err)
+	}
+
 	return db, nil
 }

@@ -14,10 +14,19 @@ func main() {
 		log.Printf("Warning: .env file not found")
 	}
 
+	// Verify all required environment variables are set
+	requiredEnvVars := []string{"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME"}
+	for _, env := range requiredEnvVars {
+		if os.Getenv(env) == "" {
+			log.Fatalf("Required environment variable %s is not set", env)
+		}
+	}
+
 	db, err := initDB()
 	if err != nil {
-		log.Fatal("Database connection failed:", err)
+		log.Fatal("Database initialization failed:", err)
 	}
+	defer db.Close()
 
 	app := &App{
 		db: db,

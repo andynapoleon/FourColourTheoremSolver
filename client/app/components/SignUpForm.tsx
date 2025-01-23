@@ -15,22 +15,24 @@ const SignUpForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    const apiHost = process.env.NEXT_PUBLIC_GOAPI_URL;
+    const apiHost = process.env.NEXT_PUBLIC_API_GATEWAY_URL;
     if (!apiHost) {
       throw new Error("API host is not defined in the environment variables");
     }
 
     try {
-      const response = await fetch(`${apiHost}/api/signup`, {
+      const response = await fetch(`${apiHost}/api/v1/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({ name, email, password }),
       });
 
       if (response.ok) {
         const data = await response.json();
+        console.log("Sign-up successful:", data);
         router.push("/login");
       } else {
         const data = await response.json();

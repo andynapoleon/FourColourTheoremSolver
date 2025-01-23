@@ -112,13 +112,13 @@ function drawLine(p, x0, y0, x1, y1) {
 }
 
 async function getData(array_pixels, w, h) {
-  const apiHost = process.env.NEXT_PUBLIC_PYTHONAPI_URL;
+  const apiHost = process.env.NEXT_PUBLIC_API_GATEWAY_URL;
 
   if (!apiHost) {
     throw new Error("API host is not defined in the environment variables");
   }
 
-  const res = await fetch(`${apiHost}/api/solve`, {
+  const res = await fetch(`${apiHost}/api/v1/maps/color`, {
     method: "POST",
     body: JSON.stringify({ image: array_pixels, height: h, width: w }),
     headers: {

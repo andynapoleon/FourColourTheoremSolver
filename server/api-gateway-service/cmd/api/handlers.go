@@ -74,21 +74,71 @@ func verifyToken(token string) bool {
 func handleRegister(w http.ResponseWriter, r *http.Request) {
 	config, _ := loadConfig()
 
+	// Set response content type
+	w.Header().Set("Content-Type", "application/json")
+
+	// Read and validate the request body
+	var registrationReq struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Email    string `json:"email"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&registrationReq); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Invalid request body",
+		})
+		return
+	}
+
 	// Forward the request to auth service
+	jsonData, err := json.Marshal(registrationReq)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Failed to process request",
+		})
+		return
+	}
+
 	resp, err := http.Post(
 		config.AuthService+"/auth/register",
 		"application/json",
-		r.Body,
+		bytes.NewBuffer(jsonData),
 	)
 	if err != nil {
-		http.Error(w, "Failed to connect to auth service", http.StatusServiceUnavailable)
+		w.WriteHeader(http.StatusServiceUnavailable)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Failed to connect to auth service",
+		})
 		return
 	}
 	defer resp.Body.Close()
 
-	// Copy status code and response body
+	// Read the response body
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Failed to read auth service response",
+		})
+		return
+	}
+
+	// Check if the response body is valid JSON
+	var jsonResponse interface{}
+	if err := json.Unmarshal(body, &jsonResponse); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Invalid response from auth service",
+		})
+		return
+	}
+
+	// Set status code and write response
 	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
+	w.Write(body)
 }
 
 func handleLogin(w http.ResponseWriter, r *http.Request) {

@@ -4,7 +4,10 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -36,41 +39,84 @@ type RefreshResponse struct {
 }
 
 func (app *App) handleRegister(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
 	var req RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		log.Printf("Error decoding request body: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Invalid request body",
+		})
 		return
 	}
 
 	// Validate input
 	if req.Email == "" || req.Password == "" {
-		http.Error(w, "Email and password are required", http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Email and password are required",
+		})
+		return
+	}
+
+	// Check if database connection is alive
+	if err := app.db.Ping(); err != nil {
+		log.Printf("Database connection error: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Database connection error",
+		})
 		return
 	}
 
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		http.Error(w, "Error processing request", http.StatusInternalServerError)
+		log.Printf("Password hashing error: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": "Error processing password",
+		})
 		return
 	}
 
 	// Insert user
 	var userID int
 	err = app.db.QueryRow(
-		"INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3) RETURNING id",
+		`INSERT INTO users (email, password_hash, name) 
+         VALUES ($1, $2, $3) 
+         RETURNING id`,
 		req.Email,
 		string(hashedPassword),
 		req.Name,
 	).Scan(&userID)
 
 	if err != nil {
-		http.Error(w, "User already exists", http.StatusConflict)
+		log.Printf("Database error during user insertion: %v", err)
+
+		if strings.Contains(err.Error(), "unique constraint") ||
+			strings.Contains(err.Error(), "duplicate key") {
+			w.WriteHeader(http.StatusConflict)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error": "User with this email already exists",
+			})
+			return
+		}
+
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error":   "Failed to create user",
+			"details": err.Error(),
+		})
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(map[string]string{"message": "User created successfully"})
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "User created successfully",
+		"userId":  strconv.Itoa(userID),
+	})
 }
 
 func (app *App) handleLogin(w http.ResponseWriter, r *http.Request) {

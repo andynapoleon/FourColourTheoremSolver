@@ -45,16 +45,15 @@ func setupRoutes(router *mux.Router) {
 	router.HandleFunc("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
-	}).Methods("GET")
-	router.HandleFunc("/api/v1/auth/register", handleRegister).Methods("POST")
-	router.HandleFunc("/api/v1/auth/login", handleLogin).Methods("POST")
+	}).Methods("GET", "OPTIONS")
 
-	// Logout requires a valid token, but we'll handle it separately from other protected routes
-	router.HandleFunc("/api/v1/auth/logout", handleLogout).Methods("POST")
+	// Add OPTIONS to the allowed methods
+	router.HandleFunc("/api/v1/auth/register", handleRegister).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/v1/auth/login", handleLogin).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/v1/auth/logout", handleLogout).Methods("POST", "OPTIONS")
 
 	// Protected routes
-	router.HandleFunc("/api/v1/maps/color", handleMapColoring).Methods("POST")
-	// Add other protected routes here
+	router.HandleFunc("/api/v1/maps/color", handleMapColoring).Methods("POST", "OPTIONS")
 }
 
 func main() {
@@ -64,12 +63,16 @@ func main() {
 	}
 
 	router := mux.NewRouter()
+
+	// Apply CORS middleware first
+	router.Use(corsMiddleware)
+
+	// Setup routes
 	setupRoutes(router)
 
-	// Add all middleware including auth
+	// Other middleware
 	router.Use(loggingMiddleware)
-	router.Use(corsMiddleware)
-	router.Use(authMiddleware) // Add this line to enable authentication
+	router.Use(authMiddleware)
 
 	log.Printf("Server starting on port %s", config.Port)
 	if err := http.ListenAndServe(":"+config.Port, router); err != nil {
