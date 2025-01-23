@@ -18,9 +18,10 @@ type ColoringRequest struct {
 }
 
 type AppConfig struct {
-	Port            string
-	ColoringService string
-	AuthService     string
+	Port              string
+	ColoringService   string
+	AuthService       string
+	MapStorageService string
 }
 
 func loadConfig() (*AppConfig, error) {
@@ -29,9 +30,10 @@ func loadConfig() (*AppConfig, error) {
 	}
 
 	return &AppConfig{
-		Port:            getEnvOrDefault("PORT", "80"),
-		ColoringService: getEnvOrDefault("COLORING_SERVICE_URL", "http://solver-service"),
-		AuthService:     getEnvOrDefault("AUTHENTICATION_SERVICE_URL", "http://authentication-service"),
+		Port:              getEnvOrDefault("PORT", "80"),
+		ColoringService:   getEnvOrDefault("COLORING_SERVICE_URL", "http://solver-service"),
+		AuthService:       getEnvOrDefault("AUTHENTICATION_SERVICE_URL", "http://authentication-service"),
+		MapStorageService: getEnvOrDefault("MAP_STORAGE_SERVICE_URL", "http://map-storage-service"),
 	}, nil
 }
 
@@ -48,14 +50,16 @@ func setupRoutes(router *mux.Router) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	}).Methods("GET", "OPTIONS")
-
-	// Add OPTIONS to the allowed methods
 	router.HandleFunc("/api/v1/auth/register", handleRegister).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/v1/auth/login", handleLogin).Methods("POST", "OPTIONS")
 	router.HandleFunc("/api/v1/auth/logout", handleLogout).Methods("POST", "OPTIONS")
 
-	// Protected routes
+	// Map solver routes (protected)
 	router.HandleFunc("/api/v1/maps/color", handleMapColoring).Methods("POST", "OPTIONS")
+
+	// Map storage routes (protected)
+	router.HandleFunc("/api/v1/maps", handleMapStorage).Methods("POST", "GET", "OPTIONS")
+	router.HandleFunc("/api/v1/maps/{id}", handleMapStorage).Methods("GET", "PUT", "DELETE", "OPTIONS")
 }
 
 func main() {

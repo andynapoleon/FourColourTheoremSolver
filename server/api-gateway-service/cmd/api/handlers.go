@@ -104,6 +104,43 @@ func handleMapColoring(w http.ResponseWriter, r *http.Request) {
 	w.Write(responseBody)
 }
 
+func handleMapStorage(w http.ResponseWriter, r *http.Request) {
+	config, _ := loadConfig()
+
+	// Forward the request to map storage service
+	url := config.MapStorageService + r.URL.Path
+
+	// Create new request
+	req, err := http.NewRequest(r.Method, url, r.Body)
+	if err != nil {
+		http.Error(w, "Failed to create request", http.StatusInternalServerError)
+		return
+	}
+
+	// Copy headers
+	req.Header = r.Header
+
+	// Send request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		http.Error(w, "Failed to connect to map storage service", http.StatusServiceUnavailable)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Copy response headers
+	for key, values := range resp.Header {
+		for _, value := range values {
+			w.Header().Add(key, value)
+		}
+	}
+
+	// Copy status code and body
+	w.WriteHeader(resp.StatusCode)
+	io.Copy(w, resp.Body)
+}
+
 func verifyToken(token string) bool {
 	config, _ := loadConfig()
 

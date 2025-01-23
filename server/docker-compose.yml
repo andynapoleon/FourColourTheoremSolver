@@ -14,6 +14,7 @@ services:
     environment:
       COLORING_SERVICE_URL: http://solver-service
       AUTHENTICATION_SERVICE_URL: http://authentication-service
+      MAP_STORAGE_SERVICE_URL: http://map-storage-service
       PORT: 80
 
   authentication-service:
@@ -40,9 +41,37 @@ services:
       dockerfile: solver-service.dockerfile
     restart: always
     ports:
-      - "8082:80" # Changed from 80 to 1000 to match Dockerfile
+      - "8082:80"
     environment:
-      PORT: 80 # Changed from 80 to 1000 to match Dockerfile
+      PORT: 80
+
+  map-storage-service:
+    build:
+      context: ./map-storage-service
+      dockerfile: map-storage-service.dockerfile
+    restart: always
+    ports:
+      - "8083:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      - PORT=8083
+      - MONGO_URI=mongodb://admin:password@mongo:27017/?authSource=admin
+      - MONGO_DB=mapstore
+    depends_on:
+      - mongo
+
+  mongo:
+    image: "mongo:4.2.16-bionic"
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: mapstore
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./db-data/mongo/:/data/db
 
   postgres:
     image: "postgres:14.2"

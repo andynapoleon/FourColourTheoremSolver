@@ -1,6 +1,7 @@
 API_GATEWAY_BINARY=apiGatewayBinary
 AUTH_BINARY=authBinary
 LOGGER_BINARY=loggerBinary
+MAP_STORAGE_BINARY=mapStorageBinary
 
 ## up: starts all containers in the background without forcing build
 up:
@@ -9,7 +10,7 @@ up:
 	@echo "Docker images started!"
 
 ## up_build: stops docker compose (if running), builds all projects and starts docker compose
-up_build: build_api_gateway build_auth 
+up_build: build_api_gateway build_auth build_map_storage
 	@echo "Stopping docker images (if running...)"
 	docker compose down
 	@echo "Building (when required) and starting docker images..."
@@ -38,6 +39,12 @@ build_auth:
 build_logger:
 	@echo "Building logger binary..."
 	cd ./logger-service && mkdir -p bin && env GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -o bin/${LOGGER_BINARY} ./cmd/api
+	@echo "Done!"
+
+## build_map_storage: builds the map_storage binary as a linux executable
+build_map_storage:
+	@echo "Building map storage binary..."
+	cd ./map-storage-service && mkdir -p bin && env GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -o bin/${MAP_STORAGE_BINARY} ./cmd/api
 	@echo "Done!"
 
 
