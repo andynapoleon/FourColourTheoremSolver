@@ -79,9 +79,9 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 
 	// Read and validate the request body
 	var registrationReq struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
+		Name     string `json:"name"`
 		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&registrationReq); err != nil {

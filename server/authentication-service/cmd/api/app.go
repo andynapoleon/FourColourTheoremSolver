@@ -4,6 +4,7 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -50,6 +51,9 @@ func (app *App) handleRegister(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	// Print out the request body
+	fmt.Println("REQUEST BODY: ", req.Email, req.Password, req.Name)
 
 	// Validate input
 	if req.Email == "" || req.Password == "" {
