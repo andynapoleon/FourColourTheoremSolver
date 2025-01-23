@@ -200,4 +200,44 @@ export function handleDownloadMap() {
   console.log("Downloading map image");
 }
 
+export async function handleSaveMap() {
+  if (!captured_image || !matrix) {
+    alert("Please color your map before saving!");
+    return;
+  }
+
+  const apiHost = process.env.NEXT_PUBLIC_API_GATEWAY_URL;
+  if (!apiHost) {
+    throw new Error("API host is not defined in the environment variables");
+  }
+
+  try {
+    // Create a canvas snapshot
+    const canvas = document.querySelector("canvas");
+    const imageData = canvas.toDataURL("image/png");
+
+    const response = await fetch(`${apiHost}/api/v1/maps`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: `Map ${new Date().toLocaleString()}`,
+        imageData: imageData,
+        matrix: matrix,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    alert("Map saved successfully!");
+  } catch (error) {
+    console.error("Error saving map:", error);
+    alert("Failed to save map. Please try again.");
+  }
+}
+
 export default sketch;

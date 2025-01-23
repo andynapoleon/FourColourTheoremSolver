@@ -4,10 +4,11 @@ import sketch, {
   handleColorMap,
   handleResetMap,
   handleDownloadMap,
+  handleSaveMap,
 } from "../sketch";
 
 export default function Canvas() {
   return <NextReactP5Wrapper sketch={sketch} />;
 }
 
-export { handleColorMap, handleResetMap, handleDownloadMap };
+export { handleColorMap, handleResetMap, handleDownloadMap, handleSaveMap };

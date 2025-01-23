@@ -2,7 +2,12 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Canvas from "./Canvas";
-import { handleColorMap, handleResetMap, handleDownloadMap } from "./Canvas";
+import {
+  handleColorMap,
+  handleResetMap,
+  handleDownloadMap,
+  handleSaveMap,
+} from "./Canvas";
 
 export default function HomeContent() {
   const router = useRouter();
@@ -15,9 +20,8 @@ export default function HomeContent() {
       router.push("/login");
     } else {
       setIsLoading(false);
-      // Retrieve user name from localStorage
       const storedUserName = localStorage.getItem("name");
-      setUserName(storedUserName || "User"); // Default to "User" if name not found
+      setUserName(storedUserName || "User");
     }
   }, [router]);
 
@@ -53,6 +57,12 @@ export default function HomeContent() {
           className={`${buttonStyles} bg-blue-500 text-white border-2 border-blue-600 hover:bg-blue-600`}
         >
           Download
+        </button>
+        <button
+          onClick={handleSaveMap}
+          className={`${buttonStyles} bg-purple-500 text-white border-2 border-purple-600 hover:bg-purple-600`}
+        >
+          Save
         </button>
       </div>
     </div>

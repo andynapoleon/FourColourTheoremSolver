@@ -105,25 +105,38 @@ func handleMapColoring(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleMapStorage(w http.ResponseWriter, r *http.Request) {
-	config, _ := loadConfig()
+	config, err := loadConfig()
+	if err != nil {
+		log.Printf("Error loading config: %v", err)
+		http.Error(w, "Failed to load configuration", http.StatusInternalServerError)
+		return
+	}
 
 	// Forward the request to map storage service
 	url := config.MapStorageService + r.URL.Path
+	log.Printf("Full URL being called: %s", url)
 
 	// Create new request
 	req, err := http.NewRequest(r.Method, url, r.Body)
 	if err != nil {
+		log.Printf("Error creating request: %v", err)
 		http.Error(w, "Failed to create request", http.StatusInternalServerError)
 		return
 	}
 
 	// Copy headers
 	req.Header = r.Header
+	log.Printf("Request headers: %v", req.Header)
 
 	// Send request
-	client := &http.Client{}
+	client := &http.Client{
+		Timeout: 10 * time.Second, // Add timeout
+	}
+
 	resp, err := client.Do(req)
 	if err != nil {
+		log.Printf("Error connecting to map storage service: %v", err)
+		log.Printf("Attempted to connect to: %s", url)
 		http.Error(w, "Failed to connect to map storage service", http.StatusServiceUnavailable)
 		return
 	}
@@ -138,7 +151,9 @@ func handleMapStorage(w http.ResponseWriter, r *http.Request) {
 
 	// Copy status code and body
 	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		log.Printf("Error copying response body: %v", err)
+	}
 }
 
 func verifyToken(token string) bool {

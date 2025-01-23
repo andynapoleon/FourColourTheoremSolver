@@ -3,7 +3,7 @@
 import Link from "next/link";
 import styles from "./styles/NavMenu.module.css";
 import Image from "next/image";
-import { SignInButton, SignOutButton } from "./Buttons";
+import { ProfileButton, SignInButton, SignOutButton } from "./Buttons";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -73,7 +73,10 @@ export default function NavBar() {
       </div>
       <div className={`${styles.navItem} ${styles.authButtons}`}>
         {isAuthenticated ? (
-          <SignOutButton onSignOut={handleSignOut} />
+          <>
+            <ProfileButton />
+            <SignOutButton onSignOut={handleSignOut} />
+          </>
         ) : (
           <SignInButton />
         )}
