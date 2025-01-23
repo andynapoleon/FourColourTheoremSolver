@@ -20,35 +20,3 @@ Welcome to the Four-Color Map Theorem Solver! This exciting project brings the f
 ![Screenshot 2024-07-28 at 20-30-50 Four-Colour Theorem Map Coloring](https://github.com/user-attachments/assets/4fbc2f10-e255-4199-9ccc-30863e5d7034)
 
 
-## 🛠️ Tech Stack
-
-- Frontend: React.js with Next.js framework and TypeScript
-- Backend: Flask (Python)
-- Database: PostgreSQL
-- Authentication: JWT (JSON Web Tokens)
-
-## 🤝 Contributing
-
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📞 Contact
-
-Andy Tran - anhquoctran006@gmail.com
-
-## 🙏 Acknowledgements
-
-- [Next.js](https://nextjs.org/)
-- [Flask](https://flask.palletsprojects.com/en/3.0.x/)
-- [PostgreSQL](https://www.postgresql.org/)
-- [JWT](https://jwt.io/)
-- [Four Color Theorem](https://en.wikipedia.org/wiki/Four_color_theorem)
-
----
-
-Happy mapping and may the colors be ever in your favor! 🌈
