@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -13,15 +16,46 @@ import (
 )
 
 func handleSaveMap(w http.ResponseWriter, r *http.Request) {
-	// Decode request body
-	var mapData MapRequest
-	if err := json.NewDecoder(r.Body).Decode(&mapData); err != nil {
-		log.Printf("Error decoding request body: %v", err)
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	// Read and log the raw request body
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Error reading request body: %v", err)
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
 		return
 	}
 
-	// Validate userID
+	// Log the raw request
+	log.Printf("Raw request body: %s", string(body))
+
+	// Create a new reader with the body data
+	r.Body = io.NopCloser(bytes.NewBuffer(body))
+
+	// First try to decode into a map to inspect the data
+	var rawData map[string]interface{}
+	if err := json.NewDecoder(bytes.NewBuffer(body)).Decode(&rawData); err != nil {
+		log.Printf("Error decoding raw data: %v", err)
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	// Log the matrix type and structure
+	if matrix, ok := rawData["matrix"]; ok {
+		log.Printf("Matrix type: %T", matrix)
+		log.Printf("Matrix value: %v", matrix)
+	}
+
+	// Reset the body reader
+	r.Body = io.NopCloser(bytes.NewBuffer(body))
+
+	// Try to decode into the actual struct
+	var mapData MapRequest
+	if err := json.NewDecoder(r.Body).Decode(&mapData); err != nil {
+		log.Printf("Error decoding into MapRequest: %v", err)
+		http.Error(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
+		return
+	}
+
+	// Validate required fields
 	if mapData.UserID == "" {
 		log.Printf("No userID provided in request body")
 		http.Error(w, "UserID is required", http.StatusBadRequest)
@@ -34,7 +68,8 @@ func handleSaveMap(w http.ResponseWriter, r *http.Request) {
 		Name:      mapData.Name,
 		Width:     mapData.Width,
 		Height:    mapData.Height,
-		ImageData: []uint8(mapData.ImageData),
+		ImageData: mapData.ImageData,
+		Matrix:    mapData.Matrix,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -117,59 +152,59 @@ func handleGetMap(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map_)
 }
 
-func handleUpdateMap(w http.ResponseWriter, r *http.Request) {
-	// Decode request body
-	var updateData MapRequest
-	if err := json.NewDecoder(r.Body).Decode(&updateData); err != nil {
-		log.Printf("Error decoding request body: %v", err)
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
+// func handleUpdateMap(w http.ResponseWriter, r *http.Request) {
+// 	// Decode request body
+// 	var updateData MapRequest
+// 	if err := json.NewDecoder(r.Body).Decode(&updateData); err != nil {
+// 		log.Printf("Error decoding request body: %v", err)
+// 		http.Error(w, "Invalid request body", http.StatusBadRequest)
+// 		return
+// 	}
 
-	// Validate userID
-	if updateData.UserID == "" {
-		log.Printf("No userID provided in request body")
-		http.Error(w, "UserID is required", http.StatusBadRequest)
-		return
-	}
+// 	// Validate userID
+// 	if updateData.UserID == "" {
+// 		log.Printf("No userID provided in request body")
+// 		http.Error(w, "UserID is required", http.StatusBadRequest)
+// 		return
+// 	}
 
-	params := mux.Vars(r)
-	id, err := primitive.ObjectIDFromHex(params["id"])
-	if err != nil {
-		log.Printf("Invalid map ID: %v", err)
-		http.Error(w, "Invalid map ID", http.StatusBadRequest)
-		return
-	}
+// 	params := mux.Vars(r)
+// 	id, err := primitive.ObjectIDFromHex(params["id"])
+// 	if err != nil {
+// 		log.Printf("Invalid map ID: %v", err)
+// 		http.Error(w, "Invalid map ID", http.StatusBadRequest)
+// 		return
+// 	}
 
-	updateMap := Map{
-		UserID:    updateData.UserID,
-		Name:      updateData.Name,
-		Width:     updateData.Width,
-		Height:    updateData.Height,
-		ImageData: []uint8(updateData.ImageData),
-		UpdatedAt: time.Now(),
-	}
+// 	updateMap := Map{
+// 		UserID:    updateData.UserID,
+// 		Name:      updateData.Name,
+// 		Width:     updateData.Width,
+// 		Height:    updateData.Height,
+// 		ImageData: []uint8(updateData.ImageData),
+// 		UpdatedAt: time.Now(),
+// 	}
 
-	result, err := db.Collection("maps").UpdateOne(
-		context.Background(),
-		bson.M{"_id": id, "userId": updateData.UserID},
-		bson.M{"$set": updateMap},
-	)
+// 	result, err := db.Collection("maps").UpdateOne(
+// 		context.Background(),
+// 		bson.M{"_id": id, "userId": updateData.UserID},
+// 		bson.M{"$set": updateMap},
+// 	)
 
-	if err != nil {
-		log.Printf("Error updating map: %v", err)
-		http.Error(w, "Failed to update map", http.StatusInternalServerError)
-		return
-	}
+// 	if err != nil {
+// 		log.Printf("Error updating map: %v", err)
+// 		http.Error(w, "Failed to update map", http.StatusInternalServerError)
+// 		return
+// 	}
 
-	if result.MatchedCount == 0 {
-		log.Printf("Map not found for user")
-		http.Error(w, "Map not found", http.StatusNotFound)
-		return
-	}
+// 	if result.MatchedCount == 0 {
+// 		log.Printf("Map not found for user")
+// 		http.Error(w, "Map not found", http.StatusNotFound)
+// 		return
+// 	}
 
-	w.WriteHeader(http.StatusOK)
-}
+// 	w.WriteHeader(http.StatusOK)
+// }
 
 func handleDeleteMap(w http.ResponseWriter, r *http.Request) {
 	// Get userID from query parameter

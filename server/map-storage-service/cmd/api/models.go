@@ -7,12 +7,12 @@ import (
 )
 
 type MapRequest struct {
-	UserID    string    `json:"userId"`
-	Name      string    `json:"name"`
-	ImageData string    `json:"imageData"`
-	Matrix    [][]uint8 `json:"matrix"`
-	Width     int       `json:"width"`
-	Height    int       `json:"height"`
+	UserID    string  `json:"userId"`
+	Name      string  `json:"name"`
+	ImageData string  `json:"imageData"`
+	Matrix    [][]int `json:"matrix"` // Changed back to [][]int
+	Width     int     `json:"width"`
+	Height    int     `json:"height"`
 }
 
 type Map struct {
@@ -21,8 +21,8 @@ type Map struct {
 	Name      string             `json:"name" bson:"name"`
 	Width     int                `json:"width" bson:"width"`
 	Height    int                `json:"height" bson:"height"`
-	ImageData []uint8            `json:"imageData" bson:"imageData"`
-	Matrix    [][]uint8          `json:"matrix,omitempty" bson:"matrix,omitempty"`
+	ImageData string             `json:"imageData" bson:"imageData"`
+	Matrix    [][]int            `json:"matrix,omitempty" bson:"matrix,omitempty"` // Changed back to [][]int
 	CreatedAt time.Time          `json:"createdAt" bson:"createdAt"`
 	UpdatedAt time.Time          `json:"updatedAt" bson:"updatedAt"`
 }

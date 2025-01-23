@@ -69,7 +69,7 @@ func setupRoutes(router *mux.Router) {
 	router.HandleFunc("/api/v1/maps", handleSaveMap).Methods("POST")
 	router.HandleFunc("/api/v1/maps", handleGetMaps).Methods("GET")
 	router.HandleFunc("/api/v1/maps/{id}", handleGetMap).Methods("GET")
-	router.HandleFunc("/api/v1/maps/{id}", handleUpdateMap).Methods("PUT")
+	// router.HandleFunc("/api/v1/maps/{id}", handleUpdateMap).Methods("PUT")
 	router.HandleFunc("/api/v1/maps/{id}", handleDeleteMap).Methods("DELETE")
 }
 

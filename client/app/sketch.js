@@ -207,7 +207,7 @@ export async function handleSaveMap() {
   }
 
   const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId"); // Make sure you're storing the userId in localStorage
+  const userId = localStorage.getItem("userId");
 
   if (!token || !userId) {
     alert("Please login to save your map");
@@ -220,9 +220,35 @@ export async function handleSaveMap() {
   }
 
   try {
-    // Get canvas data
     const canvas = document.querySelector("canvas");
     const imageData = canvas.toDataURL("image/png");
+
+    // Ensure matrix is properly formatted as number[][]
+    const formattedMatrix = matrix.map((row) =>
+      row.map((cell) => Number(cell))
+    );
+
+    // Log the matrix structure
+    console.log("Matrix structure:", {
+      type: typeof formattedMatrix,
+      isArray: Array.isArray(formattedMatrix),
+      length: formattedMatrix.length,
+      firstRow: formattedMatrix[0],
+      firstElement: formattedMatrix[0][0],
+      firstElementType: typeof formattedMatrix[0][0],
+    });
+
+    const requestBody = {
+      userId: userId,
+      name: `Map ${new Date().toLocaleString()}`,
+      imageData: imageData,
+      matrix: formattedMatrix,
+      width: canvas.width,
+      height: canvas.height,
+    };
+
+    // Log the request body
+    console.log("Request body:", JSON.stringify(requestBody));
 
     const response = await fetch(`${apiHost}/api/v1/maps`, {
       method: "POST",
@@ -230,18 +256,15 @@ export async function handleSaveMap() {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        userId: userId,
-        name: `Map ${new Date().toLocaleString()}`,
-        imageData: imageData,
-        matrix: matrix,
-        width: canvas.width,
-        height: canvas.height,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.error("Server response:", errorText);
+      throw new Error(
+        `HTTP error! status: ${response.status}, message: ${errorText}`
+      );
     }
 
     const savedMap = await response.json();
