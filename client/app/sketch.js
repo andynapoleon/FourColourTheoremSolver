@@ -118,15 +118,19 @@ async function getData(array_pixels, w, h) {
     throw new Error("API host is not defined in the environment variables");
   }
 
+  console.log("Auth token: ", localStorage.getItem("token"));
+
   const res = await fetch(`${apiHost}/api/v1/maps/color`, {
     method: "POST",
     body: JSON.stringify({ image: array_pixels, height: h, width: w }),
     headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
       "Content-Type": "application/json",
     },
   });
 
   if (!res.ok) {
+    console.log(res);
     throw new Error("Failed to fetch data");
   }
 

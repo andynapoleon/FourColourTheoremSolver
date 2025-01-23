@@ -30,6 +30,7 @@ def return_home():
 
 @app.route("/api/solve", methods=["POST"])
 def solve():
+    print("HEREHRHEHREHRHE")
     image = list(request.json["image"].values())
     width = request.json["width"]
     height = request.json["height"]

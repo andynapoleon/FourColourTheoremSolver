@@ -44,11 +44,19 @@ func authMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		token := r.Header.Get("Authorization")
-		if token == "" {
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
 			http.Error(w, "No authorization token provided", http.StatusUnauthorized)
 			return
 		}
+
+		// Extract token from "Bearer <token>"
+		parts := strings.Split(authHeader, " ")
+		if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
+			http.Error(w, "Invalid authorization header format", http.StatusUnauthorized)
+			return
+		}
+		token := parts[1]
 
 		if !verifyToken(token) {
 			http.Error(w, "Invalid or expired token", http.StatusUnauthorized)

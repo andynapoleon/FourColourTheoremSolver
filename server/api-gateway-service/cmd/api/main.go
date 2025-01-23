@@ -28,8 +28,8 @@ func loadConfig() (*AppConfig, error) {
 
 	return &AppConfig{
 		Port:            getEnvOrDefault("PORT", "80"),
-		ColoringService: getEnvOrDefault("COLORING_SERVICE_URL", "http://color-service"),
-		AuthService:     getEnvOrDefault("AUTH_SERVICE_URL", "http://authentication-service"),
+		ColoringService: getEnvOrDefault("COLORING_SERVICE_URL", "http://solver-service"),
+		AuthService:     getEnvOrDefault("AUTHENTICATION_SERVICE_URL", "http://authentication-service"),
 	}, nil
 }
 

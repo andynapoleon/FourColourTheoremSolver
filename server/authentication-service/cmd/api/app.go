@@ -1,4 +1,3 @@
-// app.go
 package main
 
 import (
@@ -175,15 +174,24 @@ func (app *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) handleVerifyToken(w http.ResponseWriter, r *http.Request) {
-	token := r.Header.Get("Authorization")
-	if token == "" {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
 		http.Error(w, "No token provided", http.StatusUnauthorized)
 		return
 	}
 
+	// Extract token from "Bearer <token>"
+	parts := strings.Split(authHeader, " ")
+	if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
+		http.Error(w, "Invalid authorization header format", http.StatusUnauthorized)
+		return
+	}
+	token := parts[1]
+
 	// Verify token
 	claims, err := verifyToken(token)
 	if err != nil {
+		log.Printf("Token verification failed: %v", err)
 		http.Error(w, "Invalid token", http.StatusUnauthorized)
 		return
 	}
@@ -195,11 +203,19 @@ func (app *App) handleVerifyToken(w http.ResponseWriter, r *http.Request) {
 		token,
 	).Scan(&exists)
 
-	if err != nil || !exists {
+	if err != nil {
+		log.Printf("Database error: %v", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	if !exists {
+		log.Printf("Token not found in sessions or expired")
 		http.Error(w, "Invalid or expired token", http.StatusUnauthorized)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"valid":   true,
 		"user_id": claims.UserID,

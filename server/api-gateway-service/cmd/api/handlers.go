@@ -6,10 +6,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 )
 
 func handleMapColoring(w http.ResponseWriter, r *http.Request) {
+
+	// Set response content type
+	w.Header().Set("Content-Type", "application/json")
+
 	// Read request body
 	var coloringReq ColoringRequest
 	if err := json.NewDecoder(r.Body).Decode(&coloringReq); err != nil {
@@ -32,6 +37,7 @@ func handleMapColoring(w http.ResponseWriter, r *http.Request) {
 
 	config, _ := loadConfig()
 	coloringURL := fmt.Sprintf("%s/api/solve", config.ColoringService)
+	log.Println("Forwarding request to coloring service:", coloringURL)
 
 	resp, err := http.Post(coloringURL, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
@@ -59,7 +65,8 @@ func verifyToken(token string) bool {
 		return false
 	}
 
-	req.Header.Set("Authorization", token)
+	// Add "Bearer" prefix to the token
+	req.Header.Set("Authorization", "Bearer "+token)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
