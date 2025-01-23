@@ -33,9 +33,10 @@ const LoginForm: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
         localStorage.setItem("token", data.token);
         localStorage.setItem("name", data.name);
+        localStorage.setItem("userId", data.user_id);
+        console.log("Sign-in successful:", data);
         router.push("/");
       } else {
         setError("Invalid username or password");

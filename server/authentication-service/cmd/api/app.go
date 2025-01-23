@@ -31,6 +31,7 @@ type LoginRequest struct {
 type TokenResponse struct {
 	Token     string `json:"token"`
 	Name      string `json:"name"`
+	UserID    int    `json:"user_id"`
 	ExpiresAt string `json:"expires_at"`
 }
 
@@ -169,6 +170,7 @@ func (app *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(TokenResponse{
 		Token:     token,
 		Name:      user.Name,
+		UserID:    user.ID,
 		ExpiresAt: expiresAt.Format(time.RFC3339),
 	})
 }

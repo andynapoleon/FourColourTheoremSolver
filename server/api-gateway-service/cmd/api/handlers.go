@@ -112,12 +112,26 @@ func handleMapStorage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Forward the request to map storage service
-	url := config.MapStorageService + r.URL.Path
-	log.Printf("Full URL being called: %s", url)
+	// Build the target URL
+	baseURL := config.MapStorageService + r.URL.Path
+	targetURL := baseURL
+
+	// If it's a GET request, append any query parameters
+	if r.Method == http.MethodGet {
+		queryParams := r.URL.Query()
+		if len(queryParams) > 0 {
+			targetURL = fmt.Sprintf("%s?%s", baseURL, queryParams.Encode())
+		}
+	}
+
+	log.Printf("Forwarding request to map storage service: %s", targetURL)
+	log.Printf("Request method: %s", r.Method)
+	if r.Method != http.MethodGet {
+		log.Printf("Request body: %v", r.Body)
+	}
 
 	// Create new request
-	req, err := http.NewRequest(r.Method, url, r.Body)
+	req, err := http.NewRequest(r.Method, targetURL, r.Body)
 	if err != nil {
 		log.Printf("Error creating request: %v", err)
 		http.Error(w, "Failed to create request", http.StatusInternalServerError)
@@ -130,13 +144,13 @@ func handleMapStorage(w http.ResponseWriter, r *http.Request) {
 
 	// Send request
 	client := &http.Client{
-		Timeout: 10 * time.Second, // Add timeout
+		Timeout: 10 * time.Second,
 	}
 
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Printf("Error connecting to map storage service: %v", err)
-		log.Printf("Attempted to connect to: %s", url)
+		log.Printf("Attempted to connect to: %s", targetURL)
 		http.Error(w, "Failed to connect to map storage service", http.StatusServiceUnavailable)
 		return
 	}

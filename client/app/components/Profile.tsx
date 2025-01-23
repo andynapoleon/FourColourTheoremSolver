@@ -20,36 +20,41 @@ export default function Profile() {
   useEffect(() => {
     const fetchUserData = async () => {
       const token = localStorage.getItem("token");
-      if (!token) {
+      const userId = localStorage.getItem("userId");
+
+      if (!token || !userId) {
         router.push("/login");
         return;
       }
 
       const apiHost = process.env.NEXT_PUBLIC_API_GATEWAY_URL;
       if (!apiHost) {
-        throw new Error("API host is not defined in the environment variables");
+        throw new Error("API host is not defined");
       }
 
       const storedUserName = localStorage.getItem("name");
       setUserName(storedUserName || "User");
 
       try {
-        const response = await fetch(`${apiHost}/api/v1/maps`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${apiHost}/api/v1/maps?userId=${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        setMaps(Array.isArray(data) ? data : []); // Ensure maps is always an array
+        setMaps(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Error fetching maps:", err);
         setError("Failed to load maps. Please try again later.");
-        setMaps([]); // Set empty array on error
+        setMaps([]);
       } finally {
         setIsLoading(false);
       }

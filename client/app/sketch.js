@@ -206,26 +206,37 @@ export async function handleSaveMap() {
     return;
   }
 
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId"); // Make sure you're storing the userId in localStorage
+
+  if (!token || !userId) {
+    alert("Please login to save your map");
+    return;
+  }
+
   const apiHost = process.env.NEXT_PUBLIC_API_GATEWAY_URL;
   if (!apiHost) {
-    throw new Error("API host is not defined in the environment variables");
+    throw new Error("API host is not defined");
   }
 
   try {
-    // Create a canvas snapshot
+    // Get canvas data
     const canvas = document.querySelector("canvas");
     const imageData = canvas.toDataURL("image/png");
 
     const response = await fetch(`${apiHost}/api/v1/maps`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        userId: userId,
         name: `Map ${new Date().toLocaleString()}`,
         imageData: imageData,
         matrix: matrix,
+        width: canvas.width,
+        height: canvas.height,
       }),
     });
 
@@ -233,7 +244,9 @@ export async function handleSaveMap() {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
+    const savedMap = await response.json();
     alert("Map saved successfully!");
+    return savedMap;
   } catch (error) {
     console.error("Error saving map:", error);
     alert("Failed to save map. Please try again.");
