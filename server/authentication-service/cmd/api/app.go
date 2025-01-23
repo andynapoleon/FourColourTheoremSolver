@@ -31,6 +31,7 @@ type LoginRequest struct {
 
 type TokenResponse struct {
 	Token     string `json:"token"`
+	Name      string `json:"name"`
 	ExpiresAt string `json:"expires_at"`
 }
 
@@ -132,9 +133,9 @@ func (app *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	var user User
 	err := app.db.QueryRow(
-		"SELECT id, email, password_hash FROM users WHERE email = $1",
+		"SELECT id, email, password_hash, name FROM users WHERE email = $1",
 		req.Email,
-	).Scan(&user.ID, &user.Email, &user.PasswordHash)
+	).Scan(&user.ID, &user.Email, &user.PasswordHash, &user.Name)
 
 	if err != nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
@@ -168,6 +169,7 @@ func (app *App) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(TokenResponse{
 		Token:     token,
+		Name:      user.Name,
 		ExpiresAt: expiresAt.Format(time.RFC3339),
 	})
 }
@@ -205,19 +207,50 @@ func (app *App) handleVerifyToken(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) handleLogout(w http.ResponseWriter, r *http.Request) {
-	token := r.Header.Get("Authorization")
-	if token == "" {
-		http.Error(w, "No token provided", http.StatusUnauthorized)
+	w.Header().Set("Content-Type", "application/json")
+
+	// Get and clean the token
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"error": "No token provided"})
 		return
 	}
 
-	// Delete session
-	_, err := app.db.Exec("DELETE FROM sessions WHERE token = $1", token)
+	// Remove "Bearer " prefix if it exists
+	token := authHeader
+	if strings.HasPrefix(authHeader, "Bearer ") {
+		token = authHeader[7:] // Remove "Bearer " prefix
+	}
+
+	// Add logging to debug
+	log.Printf("Attempting to delete session with token: %s", token)
+
+	result, err := app.db.Exec("DELETE FROM sessions WHERE token = $1", token)
 	if err != nil {
-		http.Error(w, "Error processing logout", http.StatusInternalServerError)
+		log.Printf("Error deleting session: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Error processing logout"})
 		return
 	}
 
+	// Check if any row was actually deleted
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("Error getting rows affected: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Error processing logout"})
+		return
+	}
+
+	if rowsAffected == 0 {
+		log.Printf("No session found for token: %s", token)
+		w.WriteHeader(http.StatusNotFound)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Session not found"})
+		return
+	}
+
+	log.Printf("Successfully deleted session. Rows affected: %d", rowsAffected)
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Logged out successfully"})
 }

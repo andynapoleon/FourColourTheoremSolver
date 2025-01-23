@@ -26,11 +26,34 @@ export default function NavBar() {
     };
   }, []);
 
-  const handleSignOut = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("name");
-    setIsAuthenticated(false);
-    router.push("/login"); // Redirect to login page after sign out
+  const handleSignOut = async () => {
+    const apiHost = process.env.NEXT_PUBLIC_API_GATEWAY_URL;
+    if (!apiHost) {
+      throw new Error("API host is not defined in the environment variables");
+    }
+
+    console.log("Token:", localStorage.getItem("token"));
+
+    try {
+      const response = await fetch(`${apiHost}/api/v1/auth/logout`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (response.ok) {
+        console.log("Sign-out successful", response);
+        localStorage.removeItem("token");
+        localStorage.removeItem("name");
+        setIsAuthenticated(false);
+        router.push("/login"); // Redirect to login page after sign out
+      } else {
+        console.error("Error during sign-out:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error during sign-out:", error);
+    }
   };
 
   return (

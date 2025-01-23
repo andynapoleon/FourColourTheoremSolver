@@ -16,14 +16,14 @@ const LoginForm: React.FC = () => {
     e.preventDefault();
     setError("");
 
-    const apiHost = process.env.NEXT_PUBLIC_GOAPI_URL;
+    const apiHost = process.env.NEXT_PUBLIC_API_GATEWAY_URL;
 
     if (!apiHost) {
       throw new Error("API host is not defined in the environment variables");
     }
 
     try {
-      const response = await fetch(`${apiHost}/api/login`, {
+      const response = await fetch(`${apiHost}/api/v1/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
