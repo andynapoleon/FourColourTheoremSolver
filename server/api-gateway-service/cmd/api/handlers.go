@@ -11,10 +11,6 @@ import (
 )
 
 func handleMapColoring(w http.ResponseWriter, r *http.Request) {
-
-	// Set response content type
-	w.Header().Set("Content-Type", "application/json")
-
 	// Read request body
 	var coloringReq ColoringRequest
 	if err := json.NewDecoder(r.Body).Decode(&coloringReq); err != nil {
@@ -42,6 +38,7 @@ func handleMapColoring(w http.ResponseWriter, r *http.Request) {
 	resp, err := http.Post(coloringURL, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		http.Error(w, "Error communicating with coloring service", http.StatusInternalServerError)
+		log.Println("Error communicating with coloring service:", err)
 		return
 	}
 	defer resp.Body.Close()
@@ -152,6 +149,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	config, _ := loadConfig()
 
 	// Forward the request to auth service
+	log.Printf("Forwarding request to auth service: %s", config.AuthService+"/auth/login")
 	resp, err := http.Post(
 		config.AuthService+"/auth/login",
 		"application/json",

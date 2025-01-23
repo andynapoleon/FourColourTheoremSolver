@@ -40,9 +40,9 @@ services:
       dockerfile: solver-service.dockerfile
     restart: always
     ports:
-      - "8082:1000" # Changed from 80 to 1000 to match Dockerfile
+      - "8082:80" # Changed from 80 to 1000 to match Dockerfile
     environment:
-      PORT: 1000 # Changed from 80 to 1000 to match Dockerfile
+      PORT: 80 # Changed from 80 to 1000 to match Dockerfile
 
   postgres:
     image: "postgres:14.2"

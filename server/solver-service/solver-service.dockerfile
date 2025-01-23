@@ -29,11 +29,11 @@ COPY asp_program/program.lp asp_program/
 COPY asp_program/colors.lp asp_program/
 
 # Expose the port the app runs on
-EXPOSE 1000
+EXPOSE 80 
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
-ENV PORT=1000
+ENV PORT=80
 
 # Command to run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:1000", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:80", "app:app"]
