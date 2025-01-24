@@ -32,6 +32,9 @@ export default function Profile() {
         throw new Error("API host is not defined");
       }
 
+      const storedEmail = localStorage.getItem("email");
+      setUserEmail(storedEmail || "user@gmail.com");
+
       const storedUserName = localStorage.getItem("name");
       setUserName(storedUserName || "User");
 
@@ -88,7 +91,7 @@ export default function Profile() {
           </div>
           <div className={styles.infoGroup}>
             <label>Email:</label>
-            <p>{userEmail || "email@example.com"}</p>
+            <p>{userEmail}</p>
           </div>
         </div>
 

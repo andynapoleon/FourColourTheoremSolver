@@ -151,14 +151,6 @@ func handleGetMap(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleDeleteMap(w http.ResponseWriter, r *http.Request) {
-	// Get userID from query parameter
-	userID := r.URL.Query().Get("userId")
-	if userID == "" {
-		log.Printf("No userID provided in query parameters")
-		http.Error(w, "UserID is required", http.StatusBadRequest)
-		return
-	}
-
 	params := mux.Vars(r)
 	id, err := primitive.ObjectIDFromHex(params["id"])
 	if err != nil {
@@ -168,8 +160,7 @@ func handleDeleteMap(w http.ResponseWriter, r *http.Request) {
 	}
 
 	result, err := db.Collection("maps").DeleteOne(context.Background(), bson.M{
-		"_id":    id,
-		"userId": userID,
+		"_id": id,
 	})
 
 	if err != nil {

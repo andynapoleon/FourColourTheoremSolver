@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ProfileButton, SignInButton, SignOutButton } from "./Buttons";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { handleResetMap } from "../sketch.js";
 
 export default function NavBar() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -46,7 +47,10 @@ export default function NavBar() {
         console.log("Sign-out successful", response);
         localStorage.removeItem("token");
         localStorage.removeItem("name");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("email");
         setIsAuthenticated(false);
+        handleResetMap();
         router.push("/login"); // Redirect to login page after sign out
       } else {
         console.error("Error during sign-out:", response.statusText);

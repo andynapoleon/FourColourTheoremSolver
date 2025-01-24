@@ -36,6 +36,7 @@ const LoginForm: React.FC = () => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("name", data.name);
         localStorage.setItem("userId", data.user_id);
+        localStorage.setItem("email", data.email);
         console.log("Sign-in successful:", data);
         router.push("/");
       } else {
