@@ -1,22 +1,21 @@
 # 🗺️ Four-Color Map Theorem Solver 🎨
 
-## 🌟 Introduction
+## 🌟 Summary
 
-Welcome to the Four-Color Map Theorem Solver! This exciting project brings the fascinating world of graph theory and cartography right to your browser. Ever wondered how maps are colored using just four colors without any adjacent regions sharing the same color? Well, you're in for a treat! 🤩
+Welcome to the Four-Color Map Theorem Solver, an interactive web application demonstrating one of mathematics' most significant theorems in graph theory and topology. This tool provides a practical implementation of the Four-Color Theorem, which states that any planar map can be colored using no more than four colors while ensuring no adjacent regions share the same color.
 
-## 🚀 Features
+The Four-Color Theorem, first proposed in 1852 and proven in 1976, represents a landmark achievement in mathematical history, being the first major theorem to be proved using computer assistance. This application brings this complex mathematical concept to life through an intuitive, user-friendly interface.
 
-**1. 🖌️ Interactive map coloring interface**
-  
-![Screenshot 2024-07-28 at 20-30-28 Four-Colour Theorem Map Coloring](https://github.com/user-attachments/assets/537ed02f-7c25-401e-893a-09e85a35edca)
+Our implementation allows users to:
+- Create custom maps through an interactive canvas
+- Automatically generate mathematically valid four-color solutions
+- Save and download colored maps
+- Visualize the theorem's practical applications
 
-**2. 🧠 Intelligent back-tracking algorithm used to solve the Four-Color Theorem**
-  
-![Screenshot 2024-07-28 at 20-30-39 Four-Colour Theorem Map Coloring](https://github.com/user-attachments/assets/1b5b4761-22c7-4da1-8140-32795cef3a78)
-  
-**3. 🔒 Secure user authentication**
+This project serves as both an educational tool and a practical utility, making complex mathematical concepts accessible to students, educators, and enthusiasts alike.
 
-![Screenshot 2024-07-28 at 20-30-46 Four-Colour Theorem Map Coloring](https://github.com/user-attachments/assets/5c751f58-527d-48de-9644-63c580ac8bd2)
-![Screenshot 2024-07-28 at 20-30-50 Four-Colour Theorem Map Coloring](https://github.com/user-attachments/assets/4fbc2f10-e255-4199-9ccc-30863e5d7034)
+## 🚀 Tech Stack
 
+1. Front-End: NextJS 13 App Router + TailwindCSS.
+2. Back-End: Microservices Architecture with Go, gRPC, RabbitMQ, MongoDB, PostgreSQL, Docker, and Kubernetes.
 
