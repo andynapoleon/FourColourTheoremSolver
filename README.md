@@ -23,5 +23,6 @@ This project serves as both an educational tool and a practical utility, making 
 ## 📞 Contact
 
 Andy Tran (anhquoctran006@gmail.com)
+
 Riley Kinahan (rdkinaha@ualberta.ca)
 
