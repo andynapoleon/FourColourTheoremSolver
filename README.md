@@ -18,5 +18,10 @@ This project serves as both an educational tool and a practical utility, making 
 
 1. Front-End: NextJS 13 App Router + TailwindCSS.
 2. Back-End: Microservices Architecture with Go, gRPC, RabbitMQ, MongoDB, PostgreSQL, Docker, and Kubernetes.
-3. Backtracking algorithm with ASP implemented in Python & clingo API used to solve the 4-color map theorem. 
+3. Backtracking algorithm with ASP implemented in Python & clingo API used to solve the 4-color map theorem.
+
+## 📞 Contact
+
+Andy Tran (anhquoctran006@gmail.com)
+Riley Kinahan (rdkinaha@ualberta.ca)
 
