@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package proto;
+option go_package = "/logs";
+
+service LoggerService {
+  rpc LogEvent (LogRequest) returns (LogResponse) {}
+}
+
+message LogRequest {
+  string service_name = 1;
+  string event_type = 2;
+  string user_id = 3;
+  string description = 4;
+  int32 severity = 5;
+  string timestamp = 6;
+  map<string, string> metadata = 7;
+}
+
+message LogResponse {
+  bool success = 1;
+  string message = 2;
+}

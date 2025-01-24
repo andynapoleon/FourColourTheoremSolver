@@ -1,5 +1,4 @@
-module github.com/andynapoleon/FourColourTheoremSolver
-
+module	authentication-service 
 go 1.23.0
 
 require (
