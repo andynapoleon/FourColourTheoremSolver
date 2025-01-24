@@ -121,7 +121,7 @@ export default function Profile() {
           <h2>Account Settings</h2>
           <button
             className={styles.button}
-            onClick={() => alert("Feature coming soon!")}
+            onClick={() => alert("Feature coming soon (or not)!")}
           >
             Change Password
           </button>

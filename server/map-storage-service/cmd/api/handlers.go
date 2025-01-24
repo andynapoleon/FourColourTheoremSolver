@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func handleSaveMap(w http.ResponseWriter, r *http.Request) {
@@ -120,91 +121,34 @@ func handleGetMaps(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleGetMap(w http.ResponseWriter, r *http.Request) {
-	// Get userID from query parameter
-	userID := r.URL.Query().Get("userId")
-	if userID == "" {
-		log.Printf("No userID provided in query parameters")
-		http.Error(w, "UserID is required", http.StatusBadRequest)
-		return
-	}
+	vars := mux.Vars(r)
+	mapID := vars["id"]
 
-	params := mux.Vars(r)
-	id, err := primitive.ObjectIDFromHex(params["id"])
+	// Convert string ID to ObjectID
+	objectID, err := primitive.ObjectIDFromHex(mapID)
 	if err != nil {
-		log.Printf("Invalid map ID: %v", err)
+		log.Printf("Invalid map ID format: %v", err)
 		http.Error(w, "Invalid map ID", http.StatusBadRequest)
 		return
 	}
 
-	var map_ Map
-	err = db.Collection("maps").FindOne(context.Background(), bson.M{
-		"_id":    id,
-		"userId": userID,
-	}).Decode(&map_)
-
+	// Find the map in the database
+	var mapData Map
+	err = db.Collection("maps").FindOne(context.Background(), bson.M{"_id": objectID}).Decode(&mapData)
 	if err != nil {
-		log.Printf("Error fetching map: %v", err)
-		http.Error(w, "Map not found", http.StatusNotFound)
+		if err == mongo.ErrNoDocuments {
+			http.Error(w, "Map not found", http.StatusNotFound)
+			return
+		}
+		log.Printf("Error finding map: %v", err)
+		http.Error(w, "Failed to retrieve map", http.StatusInternalServerError)
 		return
 	}
 
+	// Return the map data
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map_)
+	json.NewEncoder(w).Encode(mapData)
 }
-
-// func handleUpdateMap(w http.ResponseWriter, r *http.Request) {
-// 	// Decode request body
-// 	var updateData MapRequest
-// 	if err := json.NewDecoder(r.Body).Decode(&updateData); err != nil {
-// 		log.Printf("Error decoding request body: %v", err)
-// 		http.Error(w, "Invalid request body", http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	// Validate userID
-// 	if updateData.UserID == "" {
-// 		log.Printf("No userID provided in request body")
-// 		http.Error(w, "UserID is required", http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	params := mux.Vars(r)
-// 	id, err := primitive.ObjectIDFromHex(params["id"])
-// 	if err != nil {
-// 		log.Printf("Invalid map ID: %v", err)
-// 		http.Error(w, "Invalid map ID", http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	updateMap := Map{
-// 		UserID:    updateData.UserID,
-// 		Name:      updateData.Name,
-// 		Width:     updateData.Width,
-// 		Height:    updateData.Height,
-// 		ImageData: []uint8(updateData.ImageData),
-// 		UpdatedAt: time.Now(),
-// 	}
-
-// 	result, err := db.Collection("maps").UpdateOne(
-// 		context.Background(),
-// 		bson.M{"_id": id, "userId": updateData.UserID},
-// 		bson.M{"$set": updateMap},
-// 	)
-
-// 	if err != nil {
-// 		log.Printf("Error updating map: %v", err)
-// 		http.Error(w, "Failed to update map", http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	if result.MatchedCount == 0 {
-// 		log.Printf("Map not found for user")
-// 		http.Error(w, "Map not found", http.StatusNotFound)
-// 		return
-// 	}
-
-// 	w.WriteHeader(http.StatusOK)
-// }
 
 func handleDeleteMap(w http.ResponseWriter, r *http.Request) {
 	// Get userID from query parameter
