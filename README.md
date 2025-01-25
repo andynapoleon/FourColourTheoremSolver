@@ -6,7 +6,7 @@ Welcome to the Four-Color Map Theorem Solver, an interactive web application dem
 
 The Four-Color Theorem, first proposed in 1852 and proven in 1976, represents a landmark achievement in mathematical history, being the first major theorem to be proved using computer assistance. This application brings this complex mathematical concept to life through an intuitive, user-friendly interface.
 
-Our implementation allows users to:
+Initially developed collaboratively during the DevelopEd 2.0 Hackathon (2023) 🏆 and further advanced 🚀. Our implementation allows users to:
 - Create custom maps through an interactive canvas
 - Automatically generate mathematically valid four-color solutions
 - Save and download colored maps
