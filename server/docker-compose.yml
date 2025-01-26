@@ -95,9 +95,12 @@ services:
     image: "rabbitmq:3.9-alpine"
     ports:
       - "5672:5672"
+      - "15672:15672" # Management UI port
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - ./db-data/rabbitmq/:/var/lib/rabbitmq
 
   postgres:
     image: "postgres:14.2"

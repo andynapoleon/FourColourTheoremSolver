@@ -67,34 +67,11 @@ def solve():
     try:
         data = request.get_json()
         if not data:
-            log_event(
-                "unknown",
-                "map_coloring_failed",
-                "No JSON data received",
-                2,
-                {"error": "Missing request data"}
-            )
             return jsonify({"error": "No JSON data received"}), 400
 
         user_id = data.get("userId", "unknown")
-        log_event(
-            user_id,
-            "map_coloring_started",
-            "Starting map coloring process",
-            1,
-            {"width": str(data.get("width")), "height": str(data.get("height"))}
-        )
-
-        print("Received request data:", data.keys())
         
         if 'image' not in data or 'width' not in data or 'height' not in data:
-            log_event(
-                user_id,
-                "map_coloring_failed",
-                "Missing required fields",
-                2,
-                {"missing_fields": str([f for f in ['image', 'width', 'height'] if f not in data])}
-            )
             return jsonify({"error": "Missing required fields"}), 400
 
         # Convert image data to integers if they're strings
@@ -115,61 +92,15 @@ def solve():
                     pixel_value = int(image_data[index])
                     array[y][x] = 1 if pixel_value > 128 else 0
                 except (ValueError, TypeError) as e:
-                    log_event(
-                        user_id,
-                        "map_coloring_failed",
-                        f"Invalid pixel data at index {index}",
-                        2,
-                        {"error": str(e), "index": str(index)}
-                    )
                     return jsonify({"error": f"Invalid pixel data at index {index}"}), 400
                 index += 4
 
         begin = time.time()
         
-        log_event(
-            user_id,
-            "map_processing_step",
-            "Finding countries",
-            1,
-            {"step": "get_vertices"}
-        )
         vertices, black, vertice_matrix = get_vertices(array)
-        
-        log_event(
-            user_id,
-            "map_processing_step",
-            "Finding neighbours",
-            1,
-            {"step": "find_edges"}
-        )
         edges = find_edges(array, vertices, vertice_matrix)
-        
-        log_event(
-            user_id,
-            "map_processing_step",
-            "Creating problem instance",
-            1,
-            {"step": "generate_program", "vertices": str(len(vertices)), "edges": str(len(edges))}
-        )
         program = generate_program(len(vertices), edges)
-        
-        log_event(
-            user_id,
-            "map_processing_step",
-            "Selecting colors",
-            1,
-            {"step": "solve_graph"}
-        )
         solution = solve_graph(program)
-        
-        log_event(
-            user_id,
-            "map_processing_step",
-            "Coloring map",
-            1,
-            {"step": "color_map"}
-        )
         colored_map = color_map(vertices, solution, black)
         
         end = time.time()
@@ -192,14 +123,6 @@ def solve():
         return jsonify(result)
 
     except Exception as e:
-        user_id = data.get("userId", "unknown") if 'data' in locals() else "unknown"
-        log_event(
-            user_id,
-            "map_coloring_failed",
-            "Unexpected error during map coloring",
-            3,
-            {"error": str(e)}
-        )
         print(f"Error processing request: {str(e)}")
         import traceback
         traceback.print_exc()

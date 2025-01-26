@@ -4,6 +4,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -32,8 +33,9 @@ type Log struct {
 }
 
 type LoggerServer struct {
-	pb.UnimplementedLoggerServiceServer // modified to match generated code
-	db                                  *mongo.Database
+	pb.UnimplementedLoggerServiceServer
+	db       *mongo.Database
+	rabbitmq *amqp.Connection
 }
 
 type Config struct {
@@ -145,9 +147,58 @@ func (app *Config) consumeMessages(ctx context.Context) {
 	}
 }
 
+func (s *LoggerServer) publishToRabbitMQ(log Log) error {
+	if s.rabbitmq == nil || s.rabbitmq.IsClosed() {
+		return fmt.Errorf("no RabbitMQ connection available")
+	}
+
+	ch, err := s.rabbitmq.Channel()
+	if err != nil {
+		return fmt.Errorf("failed to open channel: %v", err)
+	}
+	defer ch.Close()
+
+	// Determine exchange based on service name
+	var exchange string
+	switch log.ServiceName {
+	case "auth":
+		exchange = "auth_logs"
+	case "map_coloring":
+		exchange = "map_coloring_logs"
+	case "map_storage":
+		exchange = "map_storage_logs"
+	default:
+		exchange = "map_coloring_logs"
+	}
+
+	body, err := json.Marshal(log)
+	if err != nil {
+		return fmt.Errorf("failed to marshal log: %v", err)
+	}
+
+	err = ch.Publish(
+		exchange,
+		"",
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        body,
+		})
+	if err != nil {
+		return fmt.Errorf("failed to publish message: %v", err)
+	}
+
+	return nil
+}
+
+// Modify LogEvent to use RabbitMQ instead of MongoDB
 func (s *LoggerServer) LogEvent(ctx context.Context, req *pb.LogRequest) (*pb.LogResponse, error) {
+	fmt.Printf("Received log request: %+v\n", req)
+
 	timestamp, err := time.Parse(time.RFC3339, req.Timestamp)
 	if err != nil {
+		fmt.Printf("Error parsing timestamp: %v, using current time\n", err)
 		timestamp = time.Now()
 	}
 
@@ -161,17 +212,21 @@ func (s *LoggerServer) LogEvent(ctx context.Context, req *pb.LogRequest) (*pb.Lo
 		Metadata:    req.Metadata,
 	}
 
-	_, err = s.db.Collection("logs").InsertOne(ctx, log)
-	if err != nil {
+	fmt.Printf("Publishing log to RabbitMQ: %+v\n", log)
+
+	if err := s.publishToRabbitMQ(log); err != nil {
+		fmt.Printf("Failed to publish to RabbitMQ: %v\n", err)
 		return &pb.LogResponse{
 			Success: false,
-			Message: "Failed to save log",
+			Message: "Failed to publish log",
 		}, err
 	}
 
+	fmt.Printf("Successfully published log to RabbitMQ\n")
+
 	return &pb.LogResponse{
 		Success: true,
-		Message: "Log saved successfully",
+		Message: "Log published successfully",
 	}, nil
 }
 
@@ -213,7 +268,8 @@ func main() {
 
 	grpcServer := grpc.NewServer()
 	loggerServer := &LoggerServer{
-		db: mongoClient.Database("logs"), // changed to "logs" to match your setup
+		db:       mongoClient.Database("logs"),
+		rabbitmq: rabbitConn,
 	}
 	pb.RegisterLoggerServiceServer(grpcServer, loggerServer)
 
@@ -238,6 +294,7 @@ func connectToMongo() (*mongo.Client, error) {
 	if mongoURI == "" {
 		mongoURI = "mongodb://localhost:27017"
 	}
+	fmt.Printf("Connecting to MongoDB at %s\n", mongoURI)
 
 	clientOptions := options.Client().ApplyURI(mongoURI)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -259,13 +316,28 @@ func connectToMongo() (*mongo.Client, error) {
 func connectToRabbitMQ() (*amqp.Connection, error) {
 	rabbitURI := os.Getenv("RABBITMQ_URI")
 	if rabbitURI == "" {
-		rabbitURI = "amqp://guest:guest@localhost"
+		rabbitURI = "amqp://guest:guest@rabbitmq:5672" // Changed to use Docker service name
 	}
 
-	conn, err := amqp.Dial(rabbitURI)
-	if err != nil {
-		return nil, err
+	var counts int64
+	var backOff = 1 * time.Second
+	var connection *amqp.Connection
+
+	// don't continue until rabbit is ready
+	for {
+		c, err := amqp.Dial(rabbitURI)
+		if err != nil {
+			fmt.Printf("RabbitMQ not yet ready... %d\n", counts)
+			counts++
+			time.Sleep(backOff)
+			if counts > 30 {
+				return nil, err
+			}
+			continue
+		}
+		connection = c
+		break
 	}
 
-	return conn, nil
+	return connection, nil
 }
