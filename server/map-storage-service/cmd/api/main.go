@@ -82,6 +82,12 @@ func main() {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
+	// Connect to logger service
+	if err := connectToLogger(); err != nil {
+		log.Printf("Warning: Failed to connect to logger service: %v", err)
+	}
+	defer loggerClient.Close()
+
 	router := mux.NewRouter()
 	setupRoutes(router)
 

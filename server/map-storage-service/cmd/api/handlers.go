@@ -86,6 +86,25 @@ func handleSaveMap(w http.ResponseWriter, r *http.Request) {
 	// Get the inserted ID
 	newMap.ID = result.InsertedID.(primitive.ObjectID)
 
+	// Log the successful map creation
+	if loggerClient != nil {
+		metadata := map[string]string{
+			"map_id":   newMap.ID.Hex(),
+			"map_name": newMap.Name,
+			"width":    fmt.Sprintf("%d", newMap.Width),
+			"height":   fmt.Sprintf("%d", newMap.Height),
+		}
+
+		if err := loggerClient.LogEvent(
+			"map_created",
+			newMap.UserID,
+			fmt.Sprintf("Map created: %s", newMap.Name),
+			metadata,
+		); err != nil {
+			log.Printf("Failed to log map creation: %v", err)
+		}
+	}
+
 	// Return the saved map
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -159,6 +178,19 @@ func handleDeleteMap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get map details before deletion for logging
+	var mapData Map
+	err = db.Collection("maps").FindOne(context.Background(), bson.M{"_id": id}).Decode(&mapData)
+	if err != nil {
+		log.Printf("Error finding map before deletion: %v", err)
+		if err == mongo.ErrNoDocuments {
+			http.Error(w, "Map not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Failed to retrieve map", http.StatusInternalServerError)
+		return
+	}
+
 	result, err := db.Collection("maps").DeleteOne(context.Background(), bson.M{
 		"_id": id,
 	})
@@ -170,9 +202,26 @@ func handleDeleteMap(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if result.DeletedCount == 0 {
-		log.Printf("Map not found for user")
+		log.Printf("Map not found for deletion")
 		http.Error(w, "Map not found", http.StatusNotFound)
 		return
+	}
+
+	// Log the successful map deletion
+	if loggerClient != nil {
+		metadata := map[string]string{
+			"map_id":   id.Hex(),
+			"map_name": mapData.Name,
+		}
+
+		if err := loggerClient.LogEvent(
+			"map_deleted",
+			mapData.UserID,
+			fmt.Sprintf("Map deleted: %s", mapData.Name),
+			metadata,
+		); err != nil {
+			log.Printf("Failed to log map deletion: %v", err)
+		}
 	}
 
 	w.WriteHeader(http.StatusNoContent)
