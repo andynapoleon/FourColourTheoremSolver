@@ -50,6 +50,7 @@ func (l *LoggerClient) LogEvent(eventType, userId, description string, metadata 
 	_, err := l.client.LogEvent(ctx, &pb.LogRequest{
 		ServiceName: "map_storage",
 		EventType:   eventType,
+		UserId:      userId,
 		Description: description,
 		Severity:    1,
 		Timestamp:   time.Now().Format(time.RFC3339),
