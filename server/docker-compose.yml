@@ -62,6 +62,24 @@ services:
     depends_on:
       - mongo
 
+  logger-service:
+    build:
+      context: ./logger-service
+      dockerfile: logger-service.dockerfile
+    restart: always
+    ports:
+      - "50001:50001"
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      - MONGO_URI=mongodb://admin:password@mongo:27017/?authSource=admin
+      - MONGO_DB=logs
+      - RABBITMQ_URI=amqp://guest:guest@rabbitmq
+    depends_on:
+      - mongo
+      - rabbitmq
+
   mongo:
     image: "mongo:4.2.16-bionic"
     ports:
@@ -72,6 +90,14 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
       - ./db-data/mongo/:/data/db
+
+  rabbitmq:
+    image: "rabbitmq:3.9-alpine"
+    ports:
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
 
   postgres:
     image: "postgres:14.2"

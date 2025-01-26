@@ -234,7 +234,12 @@ func main() {
 }
 
 func connectToMongo() (*mongo.Client, error) {
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	mongoURI := os.Getenv("MONGO_URI")
+	if mongoURI == "" {
+		mongoURI = "mongodb://localhost:27017"
+	}
+
+	clientOptions := options.Client().ApplyURI(mongoURI)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -252,7 +257,12 @@ func connectToMongo() (*mongo.Client, error) {
 }
 
 func connectToRabbitMQ() (*amqp.Connection, error) {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost")
+	rabbitURI := os.Getenv("RABBITMQ_URI")
+	if rabbitURI == "" {
+		rabbitURI = "amqp://guest:guest@localhost"
+	}
+
+	conn, err := amqp.Dial(rabbitURI)
 	if err != nil {
 		return nil, err
 	}

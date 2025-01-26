@@ -1,9 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-
-# allows interacting with other servers
 from dotenv import load_dotenv
-
 load_dotenv()
 import os
 import clingo
@@ -11,14 +8,51 @@ import skimage as ski
 from skimage import io, segmentation, color
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.signal import convolve2d
 from skimage.morphology import binary_dilation, square
 import time
 import json
+import grpc
+from google.protobuf.timestamp_pb2 import Timestamp
+from datetime import datetime
+import proto.logs.logger_pb2 as logger_pb2
+import proto.logs.logger_pb2_grpc as logger_pb2_grpc
 
 # app instance
 app = Flask(__name__)
 CORS(app)
+
+# Add logging configuration
+LOGGER_URL = "logger-service:50001"  # gRPC service address
+
+def log_event(user_id, event_type, description, severity=1, metadata=None):
+    try:
+        # Create gRPC channel
+        channel = grpc.insecure_channel(LOGGER_URL)
+        stub = logger_pb2_grpc.LoggerServiceStub(channel)
+
+        # Create timestamp
+        timestamp = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+
+        # Create log request
+        request = logger_pb2.LogRequest(
+            service_name="map_coloring_service",
+            event_type=event_type,
+            user_id=user_id,
+            description=description,
+            severity=severity,
+            timestamp=timestamp,
+            metadata=metadata or {}
+        )
+
+        # Make gRPC call
+        response = stub.LogEvent(request)
+        print(f"Log event response: {response}")
+        
+        if not response.success:
+            print(f"Failed to log event: {response.message}")
+            
+    except Exception as e:
+        print(f"Error logging event: {str(e)}")
 
 
 @app.route("/", methods=["GET"])
@@ -33,11 +67,34 @@ def solve():
     try:
         data = request.get_json()
         if not data:
+            log_event(
+                "unknown",
+                "map_coloring_failed",
+                "No JSON data received",
+                2,
+                {"error": "Missing request data"}
+            )
             return jsonify({"error": "No JSON data received"}), 400
+
+        user_id = data.get("userId", "unknown")
+        log_event(
+            user_id,
+            "map_coloring_started",
+            "Starting map coloring process",
+            1,
+            {"width": str(data.get("width")), "height": str(data.get("height"))}
+        )
 
         print("Received request data:", data.keys())
         
         if 'image' not in data or 'width' not in data or 'height' not in data:
+            log_event(
+                user_id,
+                "map_coloring_failed",
+                "Missing required fields",
+                2,
+                {"missing_fields": str([f for f in ['image', 'width', 'height'] if f not in data])}
+            )
             return jsonify({"error": "Missing required fields"}), 400
 
         # Convert image data to integers if they're strings
@@ -48,9 +105,6 @@ def solve():
         width = int(data["width"])
         height = int(data["height"])
         
-        print(f"Processing image: {width}x{height}, data length: {len(image_data)}")
-        print(f"Sample data: {image_data[:10]}")  # Print first 10 values for debugging
-
         # Convert image data to numpy array
         index = 0
         array = np.zeros((height, width))
@@ -61,38 +115,96 @@ def solve():
                     pixel_value = int(image_data[index])
                     array[y][x] = 1 if pixel_value > 128 else 0
                 except (ValueError, TypeError) as e:
-                    print(f"Error processing pixel at index {index}: {e}")
+                    log_event(
+                        user_id,
+                        "map_coloring_failed",
+                        f"Invalid pixel data at index {index}",
+                        2,
+                        {"error": str(e), "index": str(index)}
+                    )
                     return jsonify({"error": f"Invalid pixel data at index {index}"}), 400
                 index += 4
 
         begin = time.time()
-        print("Finding countries...")
+        
+        log_event(
+            user_id,
+            "map_processing_step",
+            "Finding countries",
+            1,
+            {"step": "get_vertices"}
+        )
         vertices, black, vertice_matrix = get_vertices(array)
         
-        print("Finding neighbours...")
+        log_event(
+            user_id,
+            "map_processing_step",
+            "Finding neighbours",
+            1,
+            {"step": "find_edges"}
+        )
         edges = find_edges(array, vertices, vertice_matrix)
         
-        print("Creating problem instance...")
+        log_event(
+            user_id,
+            "map_processing_step",
+            "Creating problem instance",
+            1,
+            {"step": "generate_program", "vertices": str(len(vertices)), "edges": str(len(edges))}
+        )
         program = generate_program(len(vertices), edges)
         
-        print("Selecting colors...")
+        log_event(
+            user_id,
+            "map_processing_step",
+            "Selecting colors",
+            1,
+            {"step": "solve_graph"}
+        )
         solution = solve_graph(program)
         
-        print("Coloring map...")
+        log_event(
+            user_id,
+            "map_processing_step",
+            "Coloring map",
+            1,
+            {"step": "color_map"}
+        )
         colored_map = color_map(vertices, solution, black)
         
         end = time.time()
-        print(f"Processing time: {end - begin:.2f} seconds")
+        processing_time = end - begin
+
+        log_event(
+            user_id,
+            "map_coloring_completed",
+            "Successfully colored map",
+            1,
+            {
+                "processing_time": f"{processing_time:.2f}",
+                "vertices": str(len(vertices)),
+                "edges": str(len(edges))
+            }
+        )
 
         # Convert numpy array to list for JSON serialization
         result = colored_map.tolist()
         return jsonify(result)
 
     except Exception as e:
+        user_id = data.get("userId", "unknown") if 'data' in locals() else "unknown"
+        log_event(
+            user_id,
+            "map_coloring_failed",
+            "Unexpected error during map coloring",
+            3,
+            {"error": str(e)}
+        )
         print(f"Error processing request: {str(e)}")
         import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
+
 
 # Add a health check endpoint
 @app.route('/health', methods=['GET'])
