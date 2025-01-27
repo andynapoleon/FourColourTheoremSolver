@@ -25,7 +25,5 @@ https://github.com/user-attachments/assets/21d79627-f0d5-40fe-99e8-7676c4ebae6b
 
 ## 📞 Contact
 
-Andy Tran (anhquoctran006@gmail.com)
-
-Riley Kinahan (rdkinaha@ualberta.ca)
-
+- Andy Tran ([anhquoctran006@gmail.com](mailto:anhquoctran006@gmail.com))
+- Riley Kinahan ([rdkinaha@ualberta.ca](mailto:rdkinaha@ualberta.ca))
