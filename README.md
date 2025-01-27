@@ -6,7 +6,7 @@ Welcome to the Four-Color Map Theorem Solver, an interactive web application dem
 
 The Four-Color Theorem, first proposed in 1852 and proven in 1976, represents a landmark achievement in mathematical history, being the first major theorem to be proved using computer assistance. This application brings this complex mathematical concept to life through an intuitive, user-friendly interface.
 
-Initially developed collaboratively during the DevelopEd 2.0 Hackathon (2023) 🏆 and further advanced 🚀. Our implementation allows users to:
+Initially developed collaboratively during the **DevelopEd 2.0 Hackathon (2023)** 🏆 and further advanced 🚀. Our implementation allows users to:
 - Create custom maps through an interactive canvas
 - Automatically generate mathematically valid four-color solutions
 - Save and download colored maps
@@ -16,9 +16,9 @@ This project serves as both an educational tool and a practical utility, making 
 
 ## 🚀 Tech Stack
 
-1. Front-End: NextJS 13 App Router.
-2. Back-End: Microservices Architecture with Go, gRPC, RabbitMQ, MongoDB, PostgreSQL, Docker, and Kubernetes.
-3. Backtracking algorithm with ASP implemented in Python & clingo API used to solve the 4-color map theorem.
+1. Front-End: **NextJS** 13 App Router.
+2. Back-End: Microservices Architecture with **Go**, **gRPC**, **RabbitMQ**, **MongoDB**, **PostgreSQL**, **Docker**, and **Kubernetes**.
+3. Backtracking algorithm with ASP implemented in **Python** & clingo API used to solve the 4-color map theorem.
 
 ## 📞 Contact
 
