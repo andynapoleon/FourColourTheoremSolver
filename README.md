@@ -19,7 +19,7 @@ https://github.com/user-attachments/assets/21d79627-f0d5-40fe-99e8-7676c4ebae6b
 ## 🚀 Tech Stack
 
 1. Front-End: **NextJS** 13 App Router (with **React.js** and **TailwindCSS**).
-2. Back-End: Microservices Architecture with **Go**, **gRPC**, **RabbitMQ**, **MongoDB**, **PostgreSQL**, **Docker**, and **Kubernetes**.
+2. Back-End: Microservices Architecture with **Go**, **gRPC**, **RabbitMQ**, **MongoDB**, **PostgreSQL**, **Docker**, and **Kubernetes** to ensure high availability and scalability.
 3. Services: API gateway, authentication, map solver (map coloring), map storage, and logger, communicating with each other via different protocols such as **REST**, **gRPC**, and **AMQP**.
 4. Backtracking algorithm implemented with Answer-Set Programming (AST) in **Python** & **clingo** used to solve the 4-color map theorem.
 
