@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  COLORING_SERVICE_URL: "http://solver-service"
+  AUTHENTICATION_SERVICE_URL: "http://authentication-service"
+  MAP_STORAGE_SERVICE_URL: "http://map-storage-service"
+  MONGO_DB: "mapstore"
+  POSTGRES_DB: "users"
