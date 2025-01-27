@@ -14,6 +14,8 @@ Initially developed collaboratively during the **DevelopEd 2.0 Hackathon (2023)*
 
 This project serves as both an educational tool and a practical utility, making complex mathematical concepts accessible to students, educators, and enthusiasts alike.
 
+https://github.com/user-attachments/assets/31086545-a0fd-4927-9b9d-ebe83d171a31
+
 ## 🚀 Tech Stack
 
 1. Front-End: **NextJS** 13 App Router.
