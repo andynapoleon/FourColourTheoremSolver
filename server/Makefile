@@ -35,12 +35,6 @@ build_auth:
 	cd ./authentication-service && mkdir -p bin && env GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -o bin/${AUTH_BINARY} ./cmd/api
 	@echo "Done!"
 
-## build_logger: builds the logger binary as a linux executable
-build_logger:
-	@echo "Building logger binary..."
-	cd ./logger-service && mkdir -p bin && env GOOS=linux CGO_ENABLED=0 GOARCH=amd64 go build -o bin/${LOGGER_BINARY} ./cmd/api
-	@echo "Done!"
-
 ## build_map_storage: builds the map_storage binary as a linux executable
 build_map_storage:
 	@echo "Building map storage binary..."
