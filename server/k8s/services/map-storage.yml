@@ -19,8 +19,6 @@ spec:
           ports:
             - containerPort: 80
           env:
-            - name: MONGO_URI
-              value: "mongodb://$(MONGO_ROOT_USERNAME):$(MONGO_ROOT_PASSWORD)@mongo:27017/mapstore?authSource=admin"
             - name: MONGO_ROOT_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -31,3 +29,8 @@ spec:
                 secretKeyRef:
                   name: app-secrets
                   key: MONGO_ROOT_PASSWORD
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MONGO_URI

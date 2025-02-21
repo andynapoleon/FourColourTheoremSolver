@@ -19,9 +19,6 @@ spec:
           ports:
             - containerPort: 50001
           env:
-            - name: MONGO_URI
-              value: "mongodb://$(MONGO_ROOT_USERNAME):$(MONGO_ROOT_PASSWORD)@mongo:27017/logs?authSource=admin"
-              # Use valueFrom to get the credentials
             - name: MONGO_ROOT_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -32,3 +29,8 @@ spec:
                 secretKeyRef:
                   name: app-secrets
                   key: MONGO_ROOT_PASSWORD
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MONGO_URI
