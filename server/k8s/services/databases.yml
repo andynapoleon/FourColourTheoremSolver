@@ -26,16 +26,27 @@ spec:
         app: mongo
     spec:
       containers:
+        # In database.yml
         - name: mongo
           image: mongo:4.2.16-bionic
           ports:
             - containerPort: 27017
-          envFrom:
-            - secretRef:
-                name: app-secrets
-          volumeMounts:
-            - name: mongo-storage
-              mountPath: /data/db
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MONGO_ROOT_USERNAME
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: MONGO_ROOT_PASSWORD
+            - name: MONGO_INITDB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MONGO_DB
       volumes:
         - name: mongo-storage
           persistentVolumeClaim:
@@ -72,12 +83,22 @@ spec:
           image: postgres:14.2
           ports:
             - containerPort: 5432
-          envFrom:
-            - secretRef:
-                name: app-secrets
-          volumeMounts:
-            - name: postgres-storage
-              mountPath: /var/lib/postgresql/data
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: POSTGRES_DB
       volumes:
         - name: postgres-storage
           persistentVolumeClaim:

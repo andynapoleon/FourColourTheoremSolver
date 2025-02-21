@@ -15,7 +15,7 @@ kind: Deployment
 metadata:
   name: api-gateway
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: api-gateway
@@ -26,10 +26,16 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: api-gateway-service:latest
-          imagePullPolicy: Never
+          image: aqtran/api-gateway-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
-          envFrom:
-            - configMapRef:
-                name: app-config
+          env:
+            - name: COLORING_SERVICE_URL
+              value: "http://solver-service"
+            - name: AUTHENTICATION_SERVICE_URL
+              value: "http://authentication-service"
+            - name: MAP_STORAGE_SERVICE_URL
+              value: "http://map-storage-service"
+            - name: PORT
+              value: "80"

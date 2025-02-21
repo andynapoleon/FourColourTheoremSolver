@@ -14,7 +14,7 @@ kind: Deployment
 metadata:
   name: solver
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: solver
@@ -25,7 +25,10 @@ spec:
     spec:
       containers:
         - name: solver
-          image: solver-service:latest
-          imagePullPolicy: Never
+          image: aqtran/solver-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
+          env:
+            - name: PORT
+              value: "80"
