@@ -34,3 +34,15 @@ spec:
                 secretKeyRef:
                   name: app-secrets
                   key: MONGO_URI
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: map-storage-service
+spec:
+  selector:
+    app: map-storage
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP

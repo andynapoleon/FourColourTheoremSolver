@@ -34,3 +34,15 @@ spec:
                 secretKeyRef:
                   name: app-secrets
                   key: MONGO_URI
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logger-service
+spec:
+  selector:
+    app: logger
+  ports:
+    - port: 50001
+      targetPort: 50001
+  type: ClusterIP

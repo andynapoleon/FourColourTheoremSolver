@@ -38,3 +38,15 @@ spec:
                 configMapKeyRef:
                   name: app-config
                   key: POSTGRES_DB
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentication-service
+spec:
+  selector:
+    app: authentication
+  ports:
+    - port: 80
+      targetPort: 80
+  type: ClusterIP
