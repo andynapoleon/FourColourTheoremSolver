@@ -2,7 +2,7 @@
 
 ## 🌟 Summary
 
-Welcome to the Four-Color Map Theorem Solver, an interactive web application demonstrating one of mathematics' most significant theorems in graph theory and topology. This tool provides a practical implementation of the Four-Color Theorem, which states that any planar map can be colored using no more than four colors while ensuring no adjacent regions share the same color. This application brings this complex mathematical concept to life through an intuitive, user-friendly interface.
+Welcome to the Four-Color Map Theorem Solver, an interactive web application demonstrating one of mathematics' most significant theorems in graph theory and topology. This tool provides a practical implementation of the Four-Color Theorem, which states that any planar map can be colored using no more than four colors while ensuring no adjacent regions share the same color, through an intuitive, user-friendly interface.
 
 Initially developed collaboratively during the **DevelopEd 2.0 Hackathon (2023)** 🏆 and further advanced 🚀. Our implementation allows users to:
 - Create custom maps through an interactive canvas
