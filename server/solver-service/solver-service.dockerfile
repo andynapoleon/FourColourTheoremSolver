@@ -1,5 +1,5 @@
-# Use Python 3.11.5 as base image
-FROM python:3.11.5-slim
+# Use Python 3.11.5 as base image with platform specification
+FROM --platform=linux/amd64 python:3.11.5-slim
 
 # Set working directory
 WORKDIR /app

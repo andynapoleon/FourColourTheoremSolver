@@ -7,3 +7,4 @@ db-data
 .DS_Store
 venv
 bin
+k8s-four-color-map-theorem-problem-kubeconfig.yaml
