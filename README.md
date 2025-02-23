@@ -14,7 +14,7 @@ Initially developed collaboratively during the **DevelopEd 2.0 Hackathon (2023)*
 
 This project serves as both an educational tool and a practical utility, making complex mathematical concepts accessible to students, educators, and enthusiasts alike.
 
-https://github.com/user-attachments/assets/21d79627-f0d5-40fe-99e8-7676c4ebae6b
+https://github.com/user-attachments/assets/a47dd6c6-5942-4e85-88b4-317cf4bb7f8b
 
 ## 🚀 Tech Stack
 
