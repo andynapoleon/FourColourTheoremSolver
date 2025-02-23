@@ -18,7 +18,7 @@ https://github.com/user-attachments/assets/21d79627-f0d5-40fe-99e8-7676c4ebae6b
 
 ## 🚀 Tech Stack
 
-1. Front-End: **Next.js** 13 App Router (with **React.js** and **TailwindCSS**).
+1. Front-End: **Next.js** 13 App Router (with **React.js** and **TailwindCSS**), deployed on **Vercel**.
 2. Back-End: Microservices Architecture with **Go**, **Python Flask**, **gRPC**, **RabbitMQ**, **MongoDB**, and **PostgreSQL**.
 3. DevOps: Containerized services using **Docker** and orchestrated deployments with **Kubernetes** (on **DigitalOcean**), ensuring high availability and scalability.
 4. Services: API gateway, authentication, map solver (map coloring), map storage, and logger, communicating with each other via different protocols such as **REST**, **gRPC**, and **AMQP**.
