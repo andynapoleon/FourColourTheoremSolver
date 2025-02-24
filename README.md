@@ -20,7 +20,7 @@ https://github.com/user-attachments/assets/a47dd6c6-5942-4e85-88b4-317cf4bb7f8b
 4. Services: API gateway, authentication, map solver (map coloring), map storage, and logger, communicating with each other via different protocols such as **REST**, **gRPC**, and **AMQP**.
 5. Backtracking algorithm implemented with Answer-Set Programming (AST) in **Python** & **clingo** used to solve the four-color map theorem.
 
-![map-solver drawio](https://github.com/user-attachments/assets/e2f4dad3-6520-4c4e-ac15-fdad87812ced)
+![map-solver drawio(4)](https://github.com/user-attachments/assets/a0d1e573-8ce8-478b-9216-2efcee64f403)
 
 ## 📞 Contact
 
