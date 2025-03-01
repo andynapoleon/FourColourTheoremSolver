@@ -16,7 +16,7 @@ https://github.com/user-attachments/assets/a47dd6c6-5942-4e85-88b4-317cf4bb7f8b
 
 1. Front-End: **Next.js** 13 App Router (with **React.js** and **TailwindCSS**), deployed on **Vercel**.
 2. Back-End: Microservices Architecture with **Go**, **Python Flask**, **gRPC**, **RabbitMQ**, **MongoDB**, and **PostgreSQL**.
-3. DevOps: Containerized services using **Docker** and orchestrated deployments with **Kubernetes** (on **DigitalOcean**), ensuring high availability and scalability.
+3. DevOps: Containerized services using **Docker** and orchestrated deployments with **Kubernetes** (on **AWS EKS**), ensuring high availability and scalability.
 4. Services: API gateway, authentication, map solver (map coloring), map storage, and logger, communicating with each other via different protocols such as **REST**, **gRPC**, and **AMQP**.
 5. Constraint-satisfaction algorithm implemented with Answer-Set Programming (AST) in **Python** & **clingo** used to solve the four-color map theorem.
 
