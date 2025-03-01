@@ -14,11 +14,11 @@ Initially developed collaboratively during the **DevelopEd 2.0 Hackathon (2023)*
 
 1. Front-End: **Next.js** 13 App Router (with **React.js** and **TailwindCSS**), deployed on **Vercel**.
 2. Back-End: Microservices Architecture with **Go**, **Python Flask**, **gRPC**, **RabbitMQ**, **MongoDB**, and **PostgreSQL**.
-3. DevOps: Containerized services using **Docker** and orchestrated deployments with **Kubernetes** (on **AWS EKS**), ensuring high availability and scalability.
+3. DevOps: Containerized services using **Docker** and orchestrated deployments with **Kubernetes** (on **Amazon EKS**), ensuring high availability and scalability.
 4. Services: API gateway, authentication, map solver (map coloring), map storage, and logger, communicating with each other via different protocols such as **REST**, **gRPC**, and **AMQP**.
 5. Constraint-satisfaction algorithm implemented with Answer-Set Programming (AST) in **Python** & **clingo** used to solve the four-color map theorem.
 
-![map-solver drawio(5)](https://github.com/user-attachments/assets/042ca7d4-652a-4d50-b37c-bc19dd18171a)
+![map-solver drawio(6)](https://github.com/user-attachments/assets/83a38277-a024-4a6b-bcdd-f77448fc5f71)
 
 ## 📞 Contact
 
