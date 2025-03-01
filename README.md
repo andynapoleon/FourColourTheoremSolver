@@ -10,8 +10,6 @@ Initially developed collaboratively during the **DevelopEd 2.0 Hackathon (2023)*
 - Save and download colored maps
 - Visualize the theorem's practical applications
 
-![map-solver drawio(5)](https://github.com/user-attachments/assets/042ca7d4-652a-4d50-b37c-bc19dd18171a)
-
 ## 🚀 Tech Stack & Architectural Design
 
 1. Front-End: **Next.js** 13 App Router (with **React.js** and **TailwindCSS**), deployed on **Vercel**.
@@ -20,7 +18,7 @@ Initially developed collaboratively during the **DevelopEd 2.0 Hackathon (2023)*
 4. Services: API gateway, authentication, map solver (map coloring), map storage, and logger, communicating with each other via different protocols such as **REST**, **gRPC**, and **AMQP**.
 5. Constraint-satisfaction algorithm implemented with Answer-Set Programming (AST) in **Python** & **clingo** used to solve the four-color map theorem.
 
-![map-solver drawio(4)](https://github.com/user-attachments/assets/a0d1e573-8ce8-478b-9216-2efcee64f403)
+![map-solver drawio(5)](https://github.com/user-attachments/assets/042ca7d4-652a-4d50-b37c-bc19dd18171a)
 
 ## 📞 Contact
 
