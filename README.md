@@ -10,7 +10,7 @@ Initially developed collaboratively during the **DevelopEd 2.0 Hackathon (2023)*
 - Save and download colored maps
 - Visualize the theorem's practical applications
 
-https://github.com/user-attachments/assets/a47dd6c6-5942-4e85-88b4-317cf4bb7f8b
+![map-solver drawio(5)](https://github.com/user-attachments/assets/042ca7d4-652a-4d50-b37c-bc19dd18171a)
 
 ## 🚀 Tech Stack & Architectural Design
 
